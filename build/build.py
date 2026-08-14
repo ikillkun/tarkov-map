@@ -128,6 +128,60 @@ ANYMAP = [
  ('Chumming','Skier',3,'低','脱出系。目標欄参照','Chumming'),
  ('Grenadier','Prapor',4,'中','グレネードで敵を規定数キル。Factoryのスカブ相手が効率的','Grenadier'),
 ]
+# Current active tasks, transcribed from the player's task-list screenshots.
+# Keep this override close to the rendering data so rebuilding replaces the
+# previous snapshot instead of mixing old and current tasks.
+MAPS = {k: [] for k in MAPS}
+MAPS['Woods'] = [
+ ('Shipping Delay - Part 1','Prapor',3,'中','Woods内(目標欄参照)','ゲーム内目標欄を確認','なし','Shipping_Delay_-_Part_1',(168,-600)),
+ ('A Helping Hand','Mechanic',2,'中','Woods内(目標欄参照)','ゲーム内目標欄を確認','なし','A_Helping_Hand',None),
+ ('The Huntsman Path - Woods Keeper','Jaeger',5,'高','製材所(Sawmill)','ボスのシュトゥルマンを討伐','対ボス装備','The_Huntsman_Path_-_Woods_Keeper',(10,-3)),
+ ('Swift','Jaeger',5,'低','Woods全域','ゲーム内目標欄を確認','なし','Swift',None),
+ ('Gratitude','Ragman',3,'高','製材所の湖側','衣類を指定地点に設置','指定衣類','Gratitude',(-45,15)),
+]
+MAPS['StreetsOfTarkov'] = [
+ ('Surveillance','Mechanic',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Surveillance',None),
+ ('Kings of the Rooftops','Prapor',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Kings_of_the_Rooftops',None),
+ ('Revision - Streets of Tarkov','Skier',2,'中','指定された脱出ポイント','ゲーム内目標欄を確認','なし','Revision_-_Streets_of_Tarkov',None),
+ ('Secret Message','Skier',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Secret_Message',None),
+ ('Road Closed','Skier',2,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Road_Closed',None),
+ ('Properties All Around','Prapor',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Properties_All_Around',None),
+ ('Ballet Lover','Ragman',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Ballet_Lover',None),
+ ('House Arrest','Skier',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','House_Arrest',None),
+ ('The Secret Recipe','Skier',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','The_Secret_Recipe',None),
+ ('Paramedic','Therapist',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Paramedic',None),
+ ("You've Got Mail",'Prapor',3,'中','郵便局(Post Office)エリア','ゲーム内目標欄を確認','なし',"You've_Got_Mail",None),
+ ('The Huntsman Path - Big Game','Jaeger',5,'高','LERM Expo','ボスのカバンを討伐','対ボス装備','The_Huntsman_Path_-_Big_Game',(239,-60)),
+ ('The Secret to Productivity','Mechanic',3,'中','Hive(Malevicha 5)','ゲーム内目標欄を確認','Relaxation room key','The_Secret_to_Productivity',(-212,300)),
+ ('Watching You (50%)','Mechanic',3,'中','Pinewoodホテル北棟215号室','進行度50%。ゲーム内目標欄を確認','Pinewood hotel room 215 key','Watching_You',(-35,64)),
+ ('Dandies','Ragman',3,'低','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Dandies',None),
+]
+MAPS['Shoreline'] = [
+ ('Thirsty - Hounds','Jaeger',4,'中','Shoreline全域','ゲーム内目標欄を確認','戦闘装備','Thirsty_-_Hounds',None),
+ ('Wet Job - Part 1','Peacekeeper',4,'中','Shoreline全域','ゲーム内目標欄を確認','戦闘装備','Wet_Job_-_Part_1',None),
+ ('No Swiping (10%)','Skier',4,'中','密輸業者基地','進行度10%。ゲーム内目標欄を確認','戦闘装備','No_Swiping',(-350,-270)),
+]
+MAPS['Lighthouse'] = [
+ ('Broadcast - Part 1','Mechanic',3,'中','Hillside〜シャレー周辺','放送スタジオを発見','なし','Broadcast_-_Part_1',(-151,-243)),
+]
+MAPS['Interchange'] = [
+ ('Minibus (25%)','Ragman',2,'中','Interchange内(目標欄参照)','進行度25%。ゲーム内目標欄を確認','なし','Minibus',None),
+ ('The Key to Success','Ragman',2,'中','Interchange内(目標欄参照)','ゲーム内目標欄を確認','なし','The_Key_to_Success',None),
+ ('Hot Delivery','Ragman',3,'中','Interchange内(目標欄参照)','ゲーム内目標欄を確認','なし','Hot_Delivery',None),
+ ('Long Line','Ragman',3,'中','モール内外','ゲーム内目標欄を確認','戦闘装備','Long_Line',None),
+]
+MAPS['Factory'] = [
+ ('Scout','Mechanic',2,'中','Factory内(目標欄参照)','ゲーム内目標欄を確認','なし','Scout',None),
+ ('Postman Pat - Part 1','Prapor',2,'中','Factory内(目標欄参照)','ゲーム内目標欄を確認','なし','Postman_Pat_-_Part_1',None),
+ ('Stirrup','Skier',2,'中','Factory内(目標欄参照)','ゲーム内目標欄を確認','戦闘装備','Stirrup',None),
+ ('Sanitary Standards (50%)','Therapist',2,'中','Factory内(目標欄参照)','進行度50%。ゲーム内目標欄を確認','なし','Sanitary_Standards_-_Part_1',None),
+ ('Chemical - Part 3','Skier',2,'中','Factory内(目標欄参照)','ゲーム内目標欄を確認','なし','Chemical_-_Part_3',None),
+ ('Dragnet','Jaeger',3,'中','地下のTerraGroup倉庫','化学コンテナを回収して生還・納品','なし','Dragnet',(-20.5,23)),
+ ('The Good Times - Part 1 (20%)','Prapor',5,'中','Factory全域','進行度20%。ゲーム内目標欄を確認','指定装備','The_Good_Times_-_Part_1',None),
+ ('Black Swan','Mechanic',2,'中','地下トンネル','熱交換器をマーク','MS2000マーカー','Black_Swan',(-2,-24.5)),
+]
+ANYMAP = []
+
 EXTRACTS = {
  'Customs': [
   ('ZB-1011','常設(スポーンサイド依存)。西端の地下壕','a',(628,-131)),
@@ -604,7 +658,6 @@ css += '''
 .pp-btns{display:flex;gap:8px;margin-top:8px}
 .pp-btns button{flex:1;height:38px;background:#242a24;border:1px solid var(--amber);color:var(--tanb);border-radius:4px;font-size:13px}
 .pin{transform:translate(-50%,-50%) scale(calc(1/var(--s,1)))}
-.map.zoomout .exlbl{display:none}
 @media(max-width:640px){#q{flex:1 1 140px}}
 '''
 
