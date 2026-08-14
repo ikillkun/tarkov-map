@@ -340,6 +340,28 @@ SCAV_PIN_PCT = {
 
 MAP_JA={'Customs':'CUSTOMS','Woods':'WOODS','Shoreline':'SHORELINE','Factory':'FACTORY','StreetsOfTarkov':'STREETS','GroundZero':'GROUND ZERO','Interchange':'INTERCHANGE','Lighthouse':'LIGHTHOUSE','Reserve':'RESERVE'}
 
+# User's current Factory tasks (checked against the live tarkov.dev task pages).
+# Marks use percentage coordinates on the RE3MR Factory 1.7C composite interior map.
+FACTORY_TASKS=[
+ ('scout','Scout','Mechanic','4脱出口（Gate 0 / Gate 3 / Cellars / Med Tent Gate）を訪問し、生還する。','Factory emergency exit key（施錠出口用）を持参推奨','固定地点あり'),
+ ('postman-pat-part-1','Postman Pat - Part 1','Prapor','地下バンカーの死亡した配達人から手紙を回収し、生還する。手紙はTherapistへ渡す。','鍵不要。死亡するとクエスト品を失う','固定地点あり'),
+ ('stirrup','Stirrup','Skier','Factoryでピストルを使い、任意の敵を10人倒す。','任意のピストル＋予備弾','Factory全域'),
+ ('sanitary-standards-part-1','Sanitary Standards - Part 1','Therapist','レイド内発見のGas analyzerを1個入手し、Therapistへ渡す。','Gas analyzer（FIR）×1','固定地点なし'),
+ ('chemical-part-3','Chemical - Part 3','Skier','Factory上層の事務所で薬品入り注射器を回収し、Skierへ渡す。','鍵不要。死亡するとクエスト品を失う','固定地点あり'),
+ ('dragnet','Dragnet','Jaeger','地下のTerraGroup倉庫からchemical containerを回収し、Jaegerへ渡す。','TerraGroup storage room keycard（Polikhim）必須','固定地点あり'),
+ ('the-good-times-part-1','The Good Times - Part 1','Prapor','6B43アーマーとKiver-Mヘルメットを装備してFactoryでPMCを5人倒す。','6B43＋Kiver-M（武器指定なし）','Factory全域'),
+ ('black-swan','Black Swan','Mechanic','地下トンネルの熱交換器をMS2000でマークする。候補3地点を表示。','MS2000 Marker（安全のため3個を特殊スロットへ）','固定地点あり'),
+ ('one-way-ticket','One-Way Ticket','Peacekeeper','FactoryでSteyr AUGを使い、任意の敵をヘッドショットで15人倒す。','AUG A1 / A3＋予備弾','Factory全域'),
+ ('exit-here','Exit Here','Skier','Courtyard Gate（main exit）から「生還」判定で脱出する。','鍵不要。ランスルーは不可','固定地点あり'),
+]
+FACTORY_TASK_MARKS=[
+ ('scout','Gate 0',55.2,55.5),('scout','Gate 3',59.0,29.0),('scout','Cellars',58.2,19.0),('scout','Med Tent Gate',70.8,52.0),
+ ('postman-pat-part-1','配達人の遺体',55.4,43.5),('chemical-part-3','薬品入り注射器',17.0,31.0),
+ ('dragnet','TerraGroup倉庫',84.0,48.0),
+ ('black-swan','熱交換器 A',82.0,35.0),('black-swan','熱交換器 B',88.0,46.0),('black-swan','熱交換器 C',93.0,56.0),
+ ('exit-here','Courtyard Gate',55.0,29.0),
+]
+
 modal_data={}  # id -> dict
 sections=[]; tabs=[]
 for mkey in MAP_JA:
@@ -430,6 +452,20 @@ for mkey in MAP_JA:
         modal_data[lid]['x']=x; modal_data[lid]['y']=y
         expins.append(f'<button class="pin lootpin hid" style="left:{x}%;top:{y}%" data-m="{lid}"><span class="exdot exl">$</span></button>')
         lootrows.append(f'<div class="exrow lootr"><span class="exbadge exl2">$</span><b>{lname}</b> — {ldesc}<br><small>鍵: {linkify(lkey)}</small></div>')
+    taskrows=[]; task_toggle=''
+    if mkey == 'Factory':
+        task_by_slug={}
+        for j,(slug,tname,trader,objective,need,kind) in enumerate(FACTORY_TASKS,1):
+            tid=f'Factory_t{j}'; task_by_slug[slug]=tid
+            task_url=('https://escapefromtarkov.fandom.com/wiki/Sanitary_Standards_-_Part_1' if slug=='sanitary-standards-part-1' else f'https://tarkov.dev/task/{slug}')
+            modal_data[tid]={'title':f'TASK: {tname}','sub':f'{trader} / {kind}','place':'Factory',
+              'desc':objective,'items':f'<b>必要:</b> {need}','img':IMG+quote_plus(f'Escape from Tarkov {tname} Factory quest'),
+              'map':mkey,'wl':task_url,'wt':f'✓ {tname}のデータを確認','pt':'task','pn':'Q'}
+            taskrows.append(f'<div class="exrow taskrow"><span class="exbadge taskbadge">Q</span><b>{tname}</b> <small>{trader}・{kind}</small><br>{objective}<br><small><b>必要:</b> {need}　<a class="il" href="{task_url}" target="_blank" rel="noopener">現行データ</a></small></div>')
+        for slug,mark,x,y in FACTORY_TASK_MARKS:
+            tid=task_by_slug[slug]
+            building_pins.append(f'<button class="pin taskpin" style="left:{x}%;top:{y}%" data-m="{tid}"><span class="taskdot">Q</span><span class="sllbl tasklbl">{mark}</span></button>')
+        task_toggle='<button class="mbtn tgl on" data-g="taskpin"><i class="sw sq" style="--c:#b76cff"></i>タスク</button>'
     exnote=EXTRA_EXNOTE.get(mkey,'')
     W,H=dims[mkey]
     map_ratio=f'{W}/{H}'
@@ -444,7 +480,7 @@ for mkey in MAP_JA:
         btitle,bsrc,bratio,bcredit,burl=building_specs[mkey]
         building_html=f'''<aside class="building-panel">
 <div class="building-head"><div class="building-name"><small>主要建物</small><b>{btitle}</b></div><span class="building-help">ドラッグ移動・ホイール拡大</span><div class="building-tools"><button class="mbtn bfit">全体</button><button class="mbtn bzout">−</button><button class="mbtn bzin">＋</button><button class="mbtn bfs">⛶</button></div></div>
-<div class="building-wrap"><div class="building-canvas" style="aspect-ratio:{bratio}"><img loading="lazy" src="{bsrc}" alt="{btitle}"></div></div>
+<div class="building-wrap"><div class="building-canvas" style="aspect-ratio:{bratio}"><img loading="lazy" src="{bsrc}" alt="{btitle}">{''.join(building_pins)}</div></div>
 <div class="building-credit"><a href="{burl}" target="_blank" rel="noopener">Map: {bcredit} / CC BY-NC-SA 4.0</a></div>
 </aside>'''
     if mkey == 'Interchange':
@@ -469,12 +505,14 @@ for mkey in MAP_JA:
 <button class="mbtn tgl on" data-g="excpin"><i class="sw sq" style="--c:#e8a33d"></i>条件EX</button>
 <button class="mbtn tgl" data-g="scavpin"><i class="sw" style="--c:#2f86d6"></i>SCAV</button>
 <button class="mbtn tgl" data-g="lootpin"><i class="sw" style="--c:#d9a521"></i>金策</button>
+{task_toggle}
 {scav_toggle}
 </div></div>
 <div class="map-layout"><div class="primary-view"><div class="map-wrap"><div class="map" data-map="{mkey}" style="aspect-ratio:{map_ratio}">{map_image}{route_svg}{''.join(labelpins)}{''.join(scavloot)}{''.join(expins)}</div></div></div>{building_html}</div>
 <div class="list"><h3>脱出ポイントと方法 <small>※位置は目安あり。レイド中にOキー2連打で必ず確認</small></h3>
 <p class="note"><a class="il" href="{EN}{WIKI_MAP[mkey]}#Extractions" target="_blank" rel="noopener">🖼 wikiの{mkey} 脱出セクションを開く(全脱出の写真つき一覧)</a></p>{''.join(exrows)}{f'<p class="note">{exnote}</p>' if exnote else ''}
 <h3>金策スポットと必要な鍵 <small>{loot_heading_small}</small></h3>{''.join(lootrows)}
+{f'<h3>画像のFactoryタスク <small>「館内マップ」→「タスク」で固定地点を表示</small></h3>{"".join(taskrows)}' if taskrows else ''}
 {f'<h3>SCAV向け安全寄り金策 <small>「SCAV金策」で北・南コースを表示</small></h3><p class="note scavnote">安全は保証できません。残り時間・銃声・自分の脱出口を優先し、Lexos正面と大通りは避けて建物の裏をつないでください。</p>{"".join(scavrows)}' if scavrows else ''}</div></section>''')
 
 GUN = lambda slug,name: f'<a class="il" href="{EN}{quote(slug)}" target="_blank" rel="noopener">{name}</a>'
@@ -677,6 +715,7 @@ body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .sldot{display:flex;align-items:center;justify-content:center;width:25px;height:25px;border:2px solid #fff;border-radius:5px;color:#111;font-size:11px;font-weight:900;box-shadow:0 2px 7px #000}
 .sl-safe .sldot{background:#49d17d}.sl-valuable .sldot{background:#ffd33d}.sl-body .sldot{background:#62a9ff;color:#07111d}
 .flpin{z-index:4}.flpin .sldot{border-radius:50%}
+.taskpin{z-index:6}.taskdot{display:flex;align-items:center;justify-content:center;width:25px;height:25px;border:2px solid #fff;border-radius:6px;background:#a64ee5;color:#fff;font-size:11px;font-weight:900;box-shadow:0 2px 8px #000}.tasklbl{background:#291438e8;border:1px solid #b76cff;color:#f2dfff}.taskrow{border-left-color:#a64ee5}.taskbadge{background:#a64ee5!important;color:#fff!important}
 .fl-steady .sldot{background:#49d17d}.fl-valuable .sldot{background:#ffd33d}.fl-danger .sldot{background:#ff5b56;color:#fff}
 .flpin[data-m="Interchange_fl12"] .sllbl{left:auto;right:calc(100% - 3px)}
 .sllbl{position:absolute;left:calc(100% - 3px);top:50%;transform:translateY(-50%);font-size:10px;font-weight:800;color:#fff;white-space:nowrap;background:#111d;border-radius:3px;padding:2px 4px;text-shadow:0 1px 2px #000;pointer-events:none}
