@@ -5,21 +5,28 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 with open(os.path.join(HERE, 'map_configs.json'), encoding='utf-8') as cfg_file:
     cfgs = json.load(cfg_file)
-dims = {"Woods":[1600,1543],"Shoreline":[1600,1059],"Factory":[1600,1727],
+dims = {"Woods":[1280,1252],"Shoreline":[1280,876],"Factory":[1280,905],
  "GroundZero":[1600,2240],"Lighthouse":[1600,2602],"Interchange":[1600,1344],
- "StreetsOfTarkov":[1600,2198],"Customs":[2400,1209]}
+ "StreetsOfTarkov":[1280,986],"Customs":[2400,1209],"Reserve":[4701,2785],
+ "Lighthouse":[732,1280],"Interchange":[909,859]}
 import datetime
 BUILD_VER = datetime.date.today().strftime('v%Y.%m.%d')
 JP='https://wikiwiki.jp/eft/'; EN='https://escapefromtarkov.fandom.com/wiki/'
 IMG='https://www.google.com/search?tbm=isch&q='
 WIKI_MAP={'Customs':'Customs','Woods':'Woods','Shoreline':'Shoreline','Factory':'Factory',
- 'StreetsOfTarkov':'Streets_of_Tarkov','GroundZero':'Ground_Zero','Interchange':'Interchange','Lighthouse':'Lighthouse'}
+ 'StreetsOfTarkov':'Streets_of_Tarkov','GroundZero':'Ground_Zero','Interchange':'Interchange','Lighthouse':'Lighthouse','Reserve':'Reserve'}
 
 def make_pct(mk):
     cfg=cfgs[mk]; (x1,z1),(x2,z2)=cfg['bounds']
     if mk=='Factory.svg':
         return lambda x,z:(round((z1-z)/(z1-z2)*100,2), round((x-x2)/(x1-x2)*100,2))
     return lambda x,z:(round((x1-x)/(x1-x2)*100,2), round((z-z1)/(z2-z1)*100,2))
+
+def anchor_pct(project, anchor):
+    """Resolve either legacy game coordinates or exact image percentages."""
+    if len(anchor) == 3 and anchor[0] == 'pct':
+        return anchor[1], anchor[2]
+    return project(*anchor)
 
 ITEM_LINKS = {
  'MS2000マーカー':'MS2000_Marker','グリーンフレア':'RSP-30_reactive_signal_cartridge_(Green)',
@@ -180,6 +187,7 @@ MAPS['Factory'] = [
  ('The Good Times - Part 1 (20%)','Prapor',5,'中','Factory全域','進行度20%。ゲーム内目標欄を確認','指定装備','The_Good_Times_-_Part_1',None),
  ('Black Swan','Mechanic',2,'中','地下トンネル','熱交換器をマーク','MS2000マーカー','Black_Swan',(-2,-24.5)),
 ]
+MAPS['Reserve'] = []
 ANYMAP = []
 
 EXTRACTS = {
@@ -196,49 +204,49 @@ EXTRACTS = {
   ('Railroad Passage','条件: グリーンフレアで開通','c',(212,-186)),
  ],
  'Woods': [
-  ('Outskirts','常設(サイド依存)。南西の角','a',(328,329)),
-  ('UN Roadblock','常設(サイド依存)。南東の検問','a',(-527,229)),
-  ('Northern UN Roadblock','常設(サイド依存)。東の道路沿い','a',(-553,-23)),
-  ('RUAF Gate / RUAF Roadblock','常設・両陣営。南の道路','a',(-114,388)),
-  ('ZB-016','常設。東側・Eastern Rocks付近の地下壕','a',(-383,0)),
-  ('ZB-014','条件: ZB-014キーが必要','c',(410,45)),
-  ('Bridge V-EX','条件: 車両脱出 5,000RUB。北東の川の橋','c',(-472,-491)),
-  ('Power Line Passage','条件: シグナルゾーン内で緑フレアを真上に発射','c',(530,-85)),
-  ('Friendship Bridge','条件: PMCとScavの協力脱出。北の橋','c',(27,-813)),
-  ('Railway Bridge to Tarkov','条件: 地雷原マップが必要。東の鉄道橋','c',(-734,115)),
+  ('Outskirts','常設(サイド依存)。南西の角','a',('pct',22.7,92.1)),
+  ('UN Roadblock','常設(サイド依存)。南東の検問','a',('pct',84.5,87.3)),
+  ('Northern UN Roadblock','常設(サイド依存)。東の道路沿い','a',('pct',86.8,64.5)),
+  ('RUAF Gate / RUAF Roadblock','常設・両陣営。南の道路','a',('pct',52.5,93.8)),
+  ('ZB-016','常設。東側・Eastern Rocks付近の地下壕','a',('pct',73.8,67.4)),
+  ('ZB-014','条件: ZB-014キーが必要','c',('pct',16.6,73.0)),
+  ('Bridge V-EX','条件: 車両脱出 5,000RUB。北東の川の橋','c',('pct',79.7,30.9)),
+  ('Power Line Passage','条件: シグナルゾーン内で緑フレアを真上に発射','c',('pct',7.7,61.1)),
+  ('Friendship Bridge','条件: PMCとScavの協力脱出。北の橋','c',('pct',40.5,6.8)),
+  ('Railway Bridge to Tarkov','条件: 地雷原マップが必要。東の鉄道橋','c',('pct',93.4,74.0)),
  ],
  'Shoreline': [
-  ('Tunnel','常設(サイド依存)。南西の海岸道路のトンネル','a',(390,400)),
-  ('Path to Lighthouse','常設+トランジット。北西エリア','a',(415,-60)),
-  ('Road to Customs','常設(サイド依存)。東端の道路・川の手前','a',(-890,-35)),
-  ('Railway Bridge','常設。東端の鉄道橋','a',(-1034,275)),
-  ("Smuggler's Path",'条件: PMCとScavの協力。北東の桟橋','c',(-755,-195)),
-  ("Climber's Trail",'条件: Red Rebel+パラコード必要。北の崖の下','c',(-58,-305)),
-  ('Mountain Bunker','条件: 合言葉アイテム(Heartbeat)必要。北の崖の下','c',(-200,-305)),
-  ('Road to North V-EX','条件: 車両脱出 5,000RUB。北','c',(-310,-305)),
-  ('Pier Boat','条件: ボートがある時のみ。桟橋','c',(-338.6,560)),
+  ('Tunnel','常設(サイド依存)。南西の海岸道路のトンネル','a',('pct',6.6,76.6)),
+  ('Path to Lighthouse','常設+トランジット。北西エリア','a',('pct',5.7,38.6)),
+  ('Road to Customs','常設(サイド依存)。東端の道路・川の手前','a',('pct',70.9,55.5)),
+  ('Railway Bridge','常設。東端の鉄道橋','a',('pct',79.4,73.9)),
+  ("Smuggler's Path",'条件: PMCとScavの協力。北東の桟橋','c',('pct',64.4,35.8)),
+  ("Climber's Trail",'条件: Red Rebel+パラコード必要。北の崖の下','c',('pct',36.3,29.1)),
+  ('Mountain Bunker','条件: 合言葉アイテム(Heartbeat)必要。北の崖の下','c',('pct',43.6,29.5)),
+  ('Road to North V-EX','条件: 車両脱出 5,000RUB。北','c',('pct',54.6,26.9)),
+  ('Pier Boat','条件: ボートがある時のみ。桟橋','c',('pct',41.5,95.0)),
  ],
  'Factory': [
-  ('Gate 3','常設。ガラス廊下を抜けた先','a',(60,-58)),
-  ('Cellars','常設。地下セラー','a',(-45,-40)),
-  ('Gate 0','条件は現地確認。西側','c',(-55,60)),
-  ('Office Window','条件付き。オフィス3Fの窓','c',(15,45)),
-  ('Med Tent Gate','条件: 鍵が必要','c',(-18,-35)),
+  ('Gate 3','常設。北西側のゲート','a',('pct',13.2,12.2)),
+  ('Cellars','条件: Factory emergency exit keyが必要','c',('pct',60.0,7.8)),
+  ('Gate 0','条件: Factory emergency exit keyが必要','c',('pct',19.3,96.8)),
+  ('Office Window','条件付き。オフィス3Fの窓','c',('pct',64.5,53.1)),
+  ('Camera Bunker Door','地下トンネル側の脱出口','a',('pct',27.0,63.3)),
  ],
  'StreetsOfTarkov': [
-  ('Expo Checkpoint','常設。北西','a',(232,-150)),
-  ('Cardinal Apartment Parking','常設・両陣営。北端の駐車場','a',(179,-208)),
-  ('Stylobate Building Elevator','常設。北東ビルの3Fエレベーター','a',(-52,-125)),
-  ('Klimov Shopping Mall Exfil','常設。モール1F','a',(-72,-48)),
-  ('Sewer River','常設。東側の川','a',(-144,151)),
-  ('Damaged House','常設。東側','a',(-146,272)),
-  ('Collapsed Crane','常設。西の工事現場','a',(232,248)),
-  ('Crash Site','常設。南西','a',(296,355)),
-  ('Klimov Street','条件: 緑フレアで開通(Cease Fire!と同時)。通りの東端','c',(-233,33)),
-  ("Smuggler's Basement",'条件: 合言葉アイテム(Onyx)必要','c',(135,-26)),
-  ('Pinewood Basement','条件: PMCとScavの協力','c',(-28,-7)),
-  ('Primorsky Ave Taxi V-EX','条件: 車両脱出 5,000RUB。南端','c',(11,478)),
-  ('Courtyard','条件: 緑スモークが無い時は閉鎖','c',(-57,442)),
+  ('Expo Checkpoint','常設。北西','a',('pct',36.6,23.9)),
+  ('Cardinal Apartment Parking','常設・両陣営。北端の駐車場','a',('pct',47.4,18.9)),
+  ('Stylobate Building Elevator','常設。北東ビルの3Fエレベーター','a',('pct',65.9,22.2)),
+  ('Klimov Shopping Mall Exfil','常設。モール1F','a',('pct',68.5,35.0)),
+  ('Sewer River','常設。東側の川','a',('pct',76.1,57.8)),
+  ('Damaged House','常設。東側','a',('pct',74.8,71.5)),
+  ('Collapsed Crane','常設。西の工事現場','a',('pct',32.8,63.6)),
+  ('Crash Site','常設。南西','a',('pct',30.4,77.6)),
+  ('Klimov Street','条件: 緑フレアで開通(Cease Fire!と同時)。通りの東端','c',('pct',74.7,40.2)),
+  ("Smuggler's Basement",'条件: 合言葉アイテム(Onyx)必要','c',('pct',45.1,37.3)),
+  ('Pinewood Basement','条件: PMCとScavの協力','c',('pct',61.0,39.5)),
+  ('Primorsky Ave Taxi V-EX','条件: 車両脱出 5,000RUB。南端','c',('pct',54.9,84.9)),
+  ('Courtyard','条件: 緑スモークが無い時は閉鎖','c',('pct',65.7,89.9)),
  ],
  'GroundZero': [
   ('Nakatani Basement Stairs','常設。Nakataniビル地下階段','a',(-29,298)),
@@ -247,46 +255,58 @@ EXTRACTS = {
   ('Police Checkpoint','常設。中央北の検問','a',(120,262)),
  ],
  'Interchange': [
-  ('Railway','常設(サイド依存)。北西の線路側','a',(480,-360)),
-  ('Emercom Checkpoint','常設(サイド依存)。南東の道路','a',(-330,350)),
-  ('Power Station V-EX','条件: 車両脱出・支払い。北東','c',(-186.4,-318.7)),
+  ('Railway','常設(サイド依存)。北西の線路側','a',('pct',4.9,5.5)),
+  ('Emercom Checkpoint','常設(サイド依存)。南東の道路','a',('pct',93.2,85.0)),
+  ('Power Station V-EX','条件: 車両脱出・支払い。北東','c',('pct',84.0,16.0)),
  ],
  'Lighthouse': [
-  ('Northern Checkpoint','常設。北端・トレインヤード西の道路','a',(110,-962)),
-  ('Southern Road','常設。南東の海岸道路','a',(-180,450)),
-  ('Path to Shoreline','常設・両陣営。東側中央の山道','a',(-260,-40)),
-  ('Road to Military Base','常設系。北東の道路','a',(-250,-850)),
-  ('Mountain Pass','条件: Red Rebel+パラコード必要。山道','c',(-140,100)),
-  ('Side Tunnel','条件: Scav友好時など。中央南のトンネル','c',(20,330)),
-  ('Armored Train','条件: 装甲列車の到着時刻のみ','c',(-30,-900)),
+  ('Northern Checkpoint','常設。北端・トレインヤード西の道路','a',('pct',37.8,10.3)),
+  ('Southern Road','常設。南東の海岸道路','a',('pct',71.7,82.7)),
+  ('Path to Shoreline','常設・両陣営。東側中央の山道','a',('pct',71.5,54.0)),
+  ('Road to Military Base','常設系。北東の道路','a',('pct',77.8,20.2)),
+  ('Mountain Pass','条件: Red Rebel+パラコード必要。山道','c',('pct',53.2,62.6)),
+  ('Side Tunnel','条件: Scav友好時など。中央南のトンネル','c',('pct',48.7,77.5)),
+  ('Armored Train','条件: 装甲列車の到着時刻のみ','c',('pct',46.6,17.6)),
+ ],
+ 'Reserve': [
+  ('Armored Train','条件: 列車到着時のみ','c',('pct',13.2,27.0)),
+  ('Bunker Hermetic Door','条件: レバー操作後、サイレン作動中','c',('pct',61.4,9.0)),
+  ('Cliff Descent','条件: Red Rebel+パラコード、アーマーベスト不可','c',('pct',38.0,90.0)),
+  ('D-2','条件: 地下司令部で電源を入れて扉ボタンを押す','c',('pct',94.0,38.0)),
+  ('Exit to Woods','条件: Minefield map (Reserve)が必要','c',('pct',22.6,11.5)),
+  ('Scav Lands (Co-Op)','条件: PMCとScavの協力脱出','c',('pct',39.0,11.0)),
+  ('Sewer Manhole','条件: バックパック装備不可','c',('pct',29.0,61.0)),
  ],
 }
 SCAV_EX = {
  'Customs': [('Factory Shacks',(352,-18)),('Warehouse 4',(333,-50)),('Old Road Gate',(255,218)),('Sniper Roadblock',(145,180)),('Railroad to Port',(-140,-30)),('Railroad to Tarkov',(-160,-230)),('Administration Gate',(655,-40)),('Military Base CP',(585,205)),('Passage Between Rocks',(622,222))],
- 'Woods': [('Scav Bunker(北西)',(212,-657)),('Scav House(南西)',(381,207)),('The Boat(湖岸)',(164,202)),("Dead Man's Place",(170,235)),('Mountain Stash(両陣営)',(-212,-166)),('Eastern Rocks',(-495,-11)),('Old Railway Depot',(-440,193))],
- 'Shoreline': [('Ruined Road(南西・Tunnelのすぐ南)',(400,435)),('RWing Gym Entrance(リゾート)',(-190,-70)),('Admin Basement(リゾート)',(-252,-60)),('Lighthouse(南の灯台)',(-420,590))],
- 'Factory': [('Camera Bunker Door','') ,],
- 'StreetsOfTarkov': [('Near Kamchatskaya Arch(西)',(283,9)),('Sewer Manhole',(279,321)),('Ventilation Shaft',(-18,408)),('Entrance to Catacombs(東)',(-146,197))],
+ 'Woods': [('Scav Bunker(北西)',('pct',30.8,19.6)),('Scav House(南西)',('pct',18.2,83.1)),('The Boat(湖岸)',('pct',35.0,82.0)),("Dead Man's Place",('pct',34.0,84.0)),('Mountain Stash(両陣営)',('pct',61.0,52.0)),('Eastern Rocks',('pct',84.0,65.0)),('Old Railway Depot',('pct',84.0,77.0))],
+ 'Shoreline': [('Ruined Road(南西・Tunnelのすぐ南)',('pct',5.0,79.0)),('RWing Gym Entrance(リゾート)',('pct',49.0,39.0)),('Admin Basement(リゾート)',('pct',38.0,38.0)),('Lighthouse(南の灯台)',('pct',50.0,95.0))],
+ 'Factory': [('Camera Bunker Door',('pct',27.0,63.3))],
+ 'StreetsOfTarkov': [('Near Kamchatskaya Arch(西)',('pct',34.7,40.8)),('Sewer Manhole',('pct',27.8,72.8)),('Ventilation Shaft',('pct',61.4,85.3)),('Entrance to Catacombs(東)',('pct',80.2,61.6))],
  'GroundZero': [('Scav Checkpoint',(217,140))],
- 'Interchange': [('Scav Camp(西の駐車場)',(400,-20)),('Hole in the Fence(東)',(-390,20))],
- 'Lighthouse': [('Scav Hideout at the Grotto(西海岸)',(280,-380)),('Industrial Zone Gates',(-90,-840)),('Hideout under the Landing Stage(南西海岸)',(235,315)),('South Road Landside',(-230,455))],
+ 'Interchange': [('Scav Camp(西の駐車場)',('pct',28.0,48.0)),('Hole in the Fence(東)',('pct',81.0,47.0))],
+ 'Lighthouse': [('Scav Hideout at the Grotto(西海岸)',('pct',21.0,36.0)),('Industrial Zone Gates',('pct',52.0,21.0)),('Hideout under the Landing Stage(南西海岸)',('pct',25.0,74.0)),('South Road Landside',('pct',74.0,84.0))],
+ 'Reserve': [('Heating Pipe',('pct',29.0,15.0)),('Checkpoint Fence',('pct',29.0,75.0)),('Depot Hermetic Door',('pct',58.0,32.0)),('Hole in the Wall by the Mountains',('pct',57.0,57.0))],
 }
-SCAV_EX['Factory'] = [('Camera Bunker Door',(-20,25))]
+SCAV_EX['Factory'] = [('Camera Bunker Door',('pct',27.0,63.3))]
 LOOT = {
  'Customs': [('寮(マークドルーム/金庫)','鍵部屋と金庫。PvP多め','任意: Dorm room 314 marked key(高額)/203・214等の寮キー',(205,150)),('Big Red事務所','PC・インテリ書類・重役室','Tarcone Director\'s officeキー(奥はドア破壊可)',(-215,-119)),('新ガソスタ','レジ・医療・キー湧き','鍵不要',(404,31)),('旧ガソスタ2F','USECスタッシュ・武器','鍵不要',(331,-173)),('Fortress','武器箱多数+スカブ湧き','鍵不要',(201,-127))],
- 'Woods': [('製材所','木箱多数+シュトゥルマンのレアキー','鍵不要',(10,-3)),('USEC Camp','武器・ミリタリー系','鍵不要',(299,-415)),('Convoy','車列・ミリタリールート','鍵不要',(168,-600)),('Scav House周辺','ジャケット・雑貨','鍵不要',(381,207))],
- 'Shoreline': [('リゾート東西棟','鍵部屋にLEDX等の医療レア','要: 各部屋キー(216/226/321など。西321・東226が定番)',(-252,-100)),('Village','ツールボックス・工業系','鍵不要',(418,118)),('Gas Station','レジ・医療','鍵不要(事務所は鍵)',(-189,420)),('Scav Island','武器箱・スタッシュ','鍵不要',(216,424))],
- 'Factory': [('オフィス','金庫・ファイルキャビネット','一部Factory系キー(メインは鍵不要)',(21,39)),('Rafters(3F通路)','武器箱','鍵不要',(18,4)),('Med Tent','医療系','鍵不要',(-18,-29))],
- 'StreetsOfTarkov': [('Kilmovモール','店舗ルート広範囲','鍵不要',(-128,-35)),('LERM Expo','カバンのレアドロップ+車部品','鍵不要',(239,-60)),('Lexos','車部品・工業','一部部屋キーあり',(66,305)),('Cinema','雑貨・金策','鍵不要',(-175,400)),('Pinewoodホテル','鍵部屋多数','要: Pinewood各部屋キー(215など)',(-35,64))],
+ 'Woods': [('製材所','木箱多数+シュトゥルマンのレアキー','鍵不要',('pct',56.0,65.0)),('USEC Camp','武器・ミリタリー系','鍵不要',('pct',30.0,38.0)),('Convoy','車列・ミリタリールート','鍵不要',('pct',35.0,23.0)),('Scav House周辺','ジャケット・雑貨','鍵不要',('pct',18.2,83.1))],
+ 'Shoreline': [('リゾート東西棟','鍵部屋にLEDX等の医療レア','要: 各部屋キー(216/226/321など。西321・東226が定番)',('pct',48.0,39.0)),('Village','ツールボックス・工業系','鍵不要',('pct',8.0,61.0)),('Gas Station','レジ・医療','鍵不要(事務所は鍵)',('pct',50.0,84.0)),('Scav Island','武器箱・スタッシュ','鍵不要',('pct',20.0,83.0))],
+ 'Factory': [('オフィス','金庫・ファイルキャビネット','一部Factory系キー(メインは鍵不要)',('pct',64.5,53.1)),('Rafters(3F通路)','武器箱','鍵不要',('pct',27.0,48.0)),('Med Tent','医療系','鍵不要',('pct',50.0,45.0))],
+ 'StreetsOfTarkov': [('Kilmovモール','店舗ルート広範囲','鍵不要',('pct',68.5,33.0)),('LERM Expo','カバンのレアドロップ+車部品','鍵不要',('pct',36.6,23.9)),('Lexos','車部品・工業','一部部屋キーあり',('pct',56.0,86.0)),('Cinema','雑貨・金策','鍵不要',('pct',82.0,90.0)),('Pinewoodホテル','鍵部屋多数','要: Pinewood各部屋キー(215など)',('pct',72.0,45.0))],
  'GroundZero': [('TerraGroup本社','インテリ・オフィスルート','一部オフィスキー',(-50,0)),('Tarbank','金庫・金策','一部キー(金庫室)',(43,150))],
  'Interchange': [('Techlight','電子部品(高額)','鍵不要',(91,54)),('Kiba','銃器店','要: Kiba Arms外扉+内扉キーの2本',(-18,-25)),('Goshan/IDEA/OLI','食料・雑貨・広範囲','鍵不要',(-115,-45)),('Ultra Medical','医療','鍵不要',(54,-128))],
- 'Lighthouse': [('浄水場','高級ルート(ローグ注意)','鍵不要エリア多め',(-65,-600)),('Cottages','金庫・レア','要: コテージ各キー',(-162,-225)),('Train Yard','工業・武器','鍵不要',(-30,-882))],
+ 'Lighthouse': [('浄水場','高級ルート(ローグ注意)','鍵不要エリア多め',('pct',45.0,30.0)),('Cottages','金庫・レア','要: コテージ各キー',('pct',56.0,65.0)),('Train Yard','工業・武器','鍵不要',('pct',48.0,18.0)),('VPX候補: Southern Villa / Hillside / 浄水場','VPX・Virtex・COFDM系の軍用電子品スポーン','一部キー部屋あり',('pct',54.0,62.0))],
+ 'Reserve': [('White Kingサーバー','VPXなど軍用電子品のルーズルート','鍵不要',('pct',37.0,45.0)),('D-2サーバー室','VPX・COFDM・Virtex候補','電源投入・待ち伏せ注意',('pct',90.0,38.0)),('RB-PKPTS','VPXの有力候補。鍵部屋','RB-PKPTS key',('pct',80.0,32.0))],
 }
 EXTRA_EXNOTE = {
  'StreetsOfTarkov':'Streetsは脱出が多く位置の個体差も大きい。上記は代表例+目安。必ずOキー2連打で自分のリストを確認。',
  'Interchange':'他にRailway・Emercom Checkpoint・Saferoom(条件)などあり。位置はOキー2連打で確認。',
  'Lighthouse':'他にSide Tunnel等あり。ローグ地帯(浄水場)を通るルートは注意。',
  'GroundZero':'他にScav側共有の脱出あり。',
+ 'Reserve':'D-2は待ち伏せが多い。Armored TrainとHermetic Doorは作動条件を必ず確認。',
 }
 
 DIFF_COLOR={1:'#4ade80',2:'#a3e635',3:'#facc15',4:'#fb923c',5:'#f87171'}
@@ -294,7 +314,19 @@ SUBSPOTS = {
  ('Customs','The Extortionist'): [((372,-86),'納品カーゴの施錠小屋(Unknown Keyで開錠)')],
  ('Customs','Huntsman Path - Trophy'): [((205,140),'レシャラ湧き: 寮'),((398,25),'レシャラ湧き: 新ガソスタ'),((88,-15),'レシャラ湧き: 工事現場'),((330,-72),'レシャラ湧き: Warehouse 4棟')],
 }
-MAP_JA={'Customs':'CUSTOMS','Woods':'WOODS','Shoreline':'SHORELINE','Factory':'FACTORY','StreetsOfTarkov':'STREETS','GroundZero':'GROUND ZERO','Interchange':'INTERCHANGE','Lighthouse':'LIGHTHOUSE'}
+TASK_PIN_PCT = {
+ ('Woods','Shipping Delay - Part 1'):(35.0,23.0),
+ ('Woods','The Huntsman Path - Woods Keeper'):(56.0,65.0),
+ ('Woods','Gratitude'):(56.0,65.0),
+ ('Shoreline','No Swiping (10%)'):(64.4,35.8),
+ ('Factory','Dragnet'):(27.0,63.3),
+ ('Factory','Black Swan'):(49.0,45.0),
+ ('StreetsOfTarkov','The Huntsman Path - Big Game'):(36.6,23.9),
+ ('StreetsOfTarkov','The Secret to Productivity'):(88.0,77.0),
+ ('StreetsOfTarkov','Watching You (50%)'):(72.0,45.0),
+ ('Lighthouse','Broadcast - Part 1'):(56.0,65.0),
+}
+MAP_JA={'Customs':'CUSTOMS','Woods':'WOODS','Shoreline':'SHORELINE','Factory':'FACTORY','StreetsOfTarkov':'STREETS','GroundZero':'GROUND ZERO','Interchange':'INTERCHANGE','Lighthouse':'LIGHTHOUSE','Reserve':'RESERVE'}
 def jp_url(tr,slug): return JP+quote(f"{tr}/{slug.replace('_',' ')}")
 
 modal_data={}  # id -> dict
@@ -311,8 +343,9 @@ for mkey,tasks in MAPS.items():
         modal_data[tid]={'title':f'{i}. {name}','sub':f'〔{tr}〕 難易度 {stars} / 重要度 {imp}','place':place,'desc':desc,
                          'items':linkify(items),'img':IMG+q,'map':mkey,
                          'wl':EN+quote(slug),'wt':'🖼 このタスクのwiki(写真あり)','pt':'task','pn':str(i),'pc':col}
-        if anchor:
-            x,y=p(*anchor)
+        task_pin = TASK_PIN_PCT.get((mkey,name))
+        if anchor or task_pin:
+            x,y = task_pin if task_pin else anchor_pct(p, anchor)
             modal_data[tid]['x']=x; modal_data[tid]['y']=y
             pins.append(f'<button class="pin taskpin" style="left:{x}%;top:{y}%;--c:{col}" data-m="{tid}"><span class="dot">{i}</span></button>')
             for (sx,sz),slabel in SUBSPOTS.get((mkey,name),[]):
@@ -334,7 +367,7 @@ for mkey,tasks in MAPS.items():
         modal_data[eid]={'title':f'PMC脱出: {ename}','sub':('常設脱出' if etype=='a' else '条件付き/ランダム脱出'),'place':mkey,'desc':method,'items':'','img':IMG+q,'map':mkey,
           'wl':EN+WIKI_MAP[mkey]+'#Extractions','wt':f'🖼 wikiの{mkey} 脱出セクション(写真あり)','pt':('exa' if etype=='a' else 'exc'),'pn':'EX'}
         if anchor:
-            x,y=p(*anchor)
+            x,y=anchor_pct(p, anchor)
             modal_data[eid]['x']=x; modal_data[eid]['y']=y
             lbl = f'<span class="exlbl{'' if etype=='a' else ' exlblc'}">{ename}</span>'
             expins.append(f'<button class="pin {'exapin' if etype=='a' else 'excpin'}" style="left:{x}%;top:{y}%" data-m="{eid}"><span class="exdot {cls}">EX</span>{lbl}</button>')
@@ -345,7 +378,7 @@ for mkey,tasks in MAPS.items():
         modal_data[sid]={'title':f'SCAV脱出: {ename}','sub':'スカブ専用/共有脱出(位置は目安)','place':mkey,'desc':'スカブで出た時の脱出候補。リストはOキー2連打で確認','items':'','img':IMG+q,'map':mkey,
           'wl':EN+WIKI_MAP[mkey]+'#Extractions','wt':f'🖼 wikiの{mkey} 脱出セクション(写真あり)','pt':'scav','pn':'S'}
         if anchor:
-            x,y=p(*anchor)
+            x,y=anchor_pct(p, anchor)
             modal_data[sid]['x']=x; modal_data[sid]['y']=y
             expins.append(f'<button class="pin scavpin hid" style="left:{x}%;top:{y}%" data-m="{sid}"><span class="exdot exs">S</span><span class="exlbl exlbls">{ename}</span></button>')
     lootrows=[]
@@ -354,7 +387,7 @@ for mkey,tasks in MAPS.items():
         q=quote_plus(f'Escape from Tarkov {mkey} {lname} loot')
         modal_data[lid]={'title':f'金策: {lname}','sub':'アイテム漁りスポット','place':mkey,'desc':ldesc,'items':linkify(lkey),'img':IMG+q,'map':mkey,
           'wl':EN+WIKI_MAP[mkey],'wt':f'🖼 wikiの{mkey} マップページ','pt':'loot','pn':'$'}
-        x,y=p(*anchor)
+        x,y=anchor_pct(p, anchor)
         modal_data[lid]['x']=x; modal_data[lid]['y']=y
         expins.append(f'<button class="pin lootpin hid" style="left:{x}%;top:{y}%" data-m="{lid}"><span class="exdot exl">$</span></button>')
         lootrows.append(f'<div class="exrow lootr"><span class="exbadge exl2">$</span><b>{lname}</b> — {ldesc}<br><small>鍵: {linkify(lkey)}</small></div>')
