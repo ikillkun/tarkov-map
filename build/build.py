@@ -19,8 +19,16 @@ IMG='https://www.google.com/search?tbm=isch&q='
 WIKI_MAP={'Customs':'Customs','Woods':'Woods','Shoreline':'Shoreline','Factory':'Factory',
  'StreetsOfTarkov':'Streets_of_Tarkov','GroundZero':'Ground_Zero','Interchange':'Interchange','Lighthouse':'Lighthouse','Reserve':'Reserve'}
 
-# Interchange's source SVG already contains three separate vector groups.  Keep
-# the exterior/garage ground layer as context and export clean per-floor assets.
+# Interchange's source SVG already contains three separate vector groups. Crop
+# the indoor exports to the mall so each floor fills the viewer instead of
+# appearing as a small island in the middle of the outdoor map.
+INTERCHANGE_CROP = (400, 100, 600, 760)  # x, y, width, height in source SVG
+
+def interchange_crop_pct(x, y):
+    crop_x, crop_y, crop_w, crop_h = INTERCHANGE_CROP
+    return (round((x / 100 * dims['Interchange'][0] - crop_x) / crop_w * 100, 2),
+            round((y / 100 * dims['Interchange'][1] - crop_y) / crop_h * 100, 2))
+
 def build_interchange_floor_assets():
     source_path = os.path.join(ROOT, 'map_Interchange.svg')
     with open(source_path, encoding='utf-8') as source_file:
@@ -31,7 +39,10 @@ def build_interchange_floor_assets():
         '2F': '#First_Floor{display:none}',
     }
     for suffix, rule in hidden_groups.items():
-        floor_svg = source.replace('>', f'><style id="floor_filter">{rule}</style>', 1)
+        crop_x, crop_y, crop_w, crop_h = INTERCHANGE_CROP
+        floor_svg = source.replace('viewBox="0 0 1127.6852 947.02582"',
+                                   f'viewBox="{crop_x} {crop_y} {crop_w} {crop_h}"', 1)
+        floor_svg = floor_svg.replace('>', f'><style id="floor_filter">{rule}</style>', 1)
         with open(os.path.join(ROOT, f'map_Interchange_{suffix}.svg'), 'w', encoding='utf-8') as floor_file:
             floor_file.write(floor_svg)
 
@@ -207,7 +218,8 @@ STREETS_SCAV_ROUTES = [
 
 INTERCHANGE_FLOOR_NAMES = {'basement':'地下駐車場','first':'1階','second':'2階'}
 INTERCHANGE_LABEL_FLOORS = {
- 'basement': {'Power Station','Go Kart','Four Camp','Cargo Containers','Wall Break','Ramps','Oli Tower','Idea Tower','Scav Camp','Highway Construction','Garage A','Garage B','Garage C','Garage D'},
+ 'overview': {'Power Station','Go Kart','Four Camp','Cargo Containers','Wall Break','Oli Tower','Idea Tower','Scav Camp','Highway Construction'},
+ 'basement': {'Ramps','Garage A','Garage B','Garage C','Garage D'},
  'first': {'IDEA','Goshan','OLI','Nortex','TRend','Mode7','TTS','Book Store','Dino Clothes','EMERCOM','Kostin','Bizarro','Spiel','Voyage','Viking','Mantis','German','The National','Brutal','Kiba','Pretty Lights','Telespot','Revis','ADIK','Generic','Top Brand','Sports','Yushka','Rasmussen','Avokado','Boots 4 Life','Texho','Dom'},
  'second': {'Father & Sons','Tarkovstar','Eastland','Arena','ТАРЗДРАВ','МЕБЕЛЬ МК','Intourist','Burger Spot','FCK','McDaniels','Tarducks','Coffee Joy','Jacob & Jacob','ПУШКИН','Sushi Huyushi','Underway','Burger House','Philly Cute','Shiccos','МУЗЕЙ ИСТОРИИ','Papillon','ЗАКРЫТО НА РЕМОНТ','НА-СВЯЗИ','СКОРО ОТКРЫТИЕ','Figaro','АПТЕКА','SARA','Urban Clothes','TECHLIGHT','Fashion Store'},
 }
@@ -333,6 +345,8 @@ for mkey in MAP_JA:
         floor_hidden=''
         if mkey == 'Interchange':
             floor=next((key for key,names in INTERCHANGE_LABEL_FLOORS.items() if label in names), 'basement')
+            if floor != 'overview':
+                x,y=interchange_crop_pct(x,y)
             floor_attr=f' data-floor="{floor}"'
             floor_hidden='' if floor == 'first' else ' hid'
         labelpins.append(f'<span class="labelpin{floor_hidden}"{floor_attr} style="left:{x}%;top:{y}%">{label}</span>')
@@ -369,7 +383,9 @@ for mkey in MAP_JA:
             x,y=anchor_pct(p, anchor)
             modal_data[eid]['x']=x; modal_data[eid]['y']=y
             lbl = f'<span class="exlbl{'' if etype=='a' else ' exlblc'}">{ename}</span>'
-            expins.append(f'<button class="pin {'exapin' if etype=='a' else 'excpin'}" style="left:{x}%;top:{y}%" data-m="{eid}"><span class="exdot {cls}">EX</span>{lbl}</button>')
+            floor_attr=' data-floor="overview"' if mkey == 'Interchange' else ''
+            floor_hidden=' hid' if mkey == 'Interchange' else ''
+            expins.append(f'<button class="pin {'exapin' if etype=='a' else 'excpin'}{floor_hidden}"{floor_attr} style="left:{x}%;top:{y}%" data-m="{eid}"><span class="exdot {cls}">EX</span>{lbl}</button>')
         exrows.append(f'<div class="exrow {cls}r"><span class="exbadge {cls}">{tag}</span><b>{ename}</b> — {method}</div>')
     for j,(ename,anchor) in enumerate(SCAV_EX.get(mkey,[]),1):
         anchor=('pct', *SCAV_PIN_PCT[mkey][ename])
@@ -380,13 +396,15 @@ for mkey in MAP_JA:
         if anchor:
             x,y=anchor_pct(p, anchor)
             modal_data[sid]['x']=x; modal_data[sid]['y']=y
-            expins.append(f'<button class="pin scavpin hid" style="left:{x}%;top:{y}%" data-m="{sid}"><span class="exdot exs">S</span><span class="exlbl exlbls">{ename}</span></button>')
+            floor_attr=' data-floor="overview"' if mkey == 'Interchange' else ''
+            expins.append(f'<button class="pin scavpin hid"{floor_attr} style="left:{x}%;top:{y}%" data-m="{sid}"><span class="exdot exs">S</span><span class="exlbl exlbls">{ename}</span></button>')
     lootrows=[]
     if mkey == 'Interchange':
         risk_label={'steady':'安定','valuable':'高額','danger':'激戦'}
         for j,(floor,risk,lname,ldesc,lkey,anchor) in enumerate(INTERCHANGE_FLOOR_LOOT,1):
             lid=f'{mkey}_fl{j}'
             x,y=anchor_pct(p,anchor)
+            x,y=interchange_crop_pct(x,y)
             q=quote_plus(f'Escape from Tarkov Interchange {lname} loot')
             modal_data[lid]={'title':f'{INTERCHANGE_FLOOR_NAMES[floor]}金策: {lname}',
               'sub':f'{risk_label[risk]}スポット','place':f'Interchange / {INTERCHANGE_FLOOR_NAMES[floor]}',
@@ -407,17 +425,19 @@ for mkey in MAP_JA:
         lootrows.append(f'<div class="exrow lootr"><span class="exbadge exl2">$</span><b>{lname}</b> — {ldesc}<br><small>鍵: {linkify(lkey)}</small></div>')
     exnote=EXTRA_EXNOTE.get(mkey,'')
     W,H=dims[mkey]
+    map_ratio=f'{W}/{H}'
     floor_controls=''
     map_image=f'<img loading="lazy" src="map_{mkey}.svg" alt="{mkey}">'
     if mkey == 'Interchange':
         floor_controls='''<div class="grp floor-switch" aria-label="館内階層">
-<button class="mbtn floorbtn" data-floor="basement">地下</button><button class="mbtn floorbtn on" data-floor="first">1階</button><button class="mbtn floorbtn" data-floor="second">2階</button></div>'''
-        map_image='<img class="floor-map" loading="lazy" src="map_Interchange_1F.svg" alt="Interchange 1階" data-src-basement="map_Interchange_Basement.svg" data-src-first="map_Interchange_1F.svg" data-src-second="map_Interchange_2F.svg">'
+<span class="floor-caption">表示</span><button class="mbtn floorbtn" data-floor="overview">全体</button><button class="mbtn floorbtn" data-floor="basement">地下</button><button class="mbtn floorbtn on" data-floor="first">1階</button><button class="mbtn floorbtn" data-floor="second">2階</button></div>'''
+        map_ratio=f'{INTERCHANGE_CROP[2]}/{INTERCHANGE_CROP[3]}'
+        map_image='<img class="floor-map" loading="lazy" src="map_Interchange_1F.svg" alt="Interchange 1階" data-src-overview="map_Interchange.svg" data-src-basement="map_Interchange_Basement.svg" data-src-first="map_Interchange_1F.svg" data-src-second="map_Interchange_2F.svg" data-ratio-overview="1127.6852/947.02582" data-ratio-basement="600/760" data-ratio-first="600/760" data-ratio-second="600/760">'
     loot_heading_small='上の階層ボタンで地下・1階・2階を切替。「金策」で現在階の位置表示' if mkey == 'Interchange' else 'マップの「金策」レイヤーで位置表示'
     tabs.append(f'<button class="tab" data-t="{mkey}">{MAP_JA[mkey]}</button>')
     sections.append(f'''<section id="{mkey}" class="mapsec">
 <div class="mapbar">
-<div class="grp"><button class="mbtn zout">−</button><button class="mbtn zin">＋</button><button class="mbtn fsb">⛶</button></div>
+<div class="grp"><button class="mbtn zout">−</button><button class="mbtn zin">＋</button><button class="mbtn fsb" title="全画面で拡大" aria-label="全画面で拡大">⛶ 全画面</button></div>
 {floor_controls}
 <div class="grp layers">
 <button class="mbtn tgl on" data-g="labelpin"><i class="sw" style="--c:#d4c6a5"></i>地名</button>
@@ -427,7 +447,7 @@ for mkey in MAP_JA:
 <button class="mbtn tgl" data-g="lootpin"><i class="sw" style="--c:#d9a521"></i>金策</button>
 {scav_toggle}
 </div></div>
-<div class="map-wrap"><div class="map" data-map="{mkey}" style="aspect-ratio:{W}/{H}">{map_image}{route_svg}{''.join(labelpins)}{''.join(scavloot)}{''.join(expins)}</div></div>
+<div class="map-wrap"><div class="map" data-map="{mkey}" style="aspect-ratio:{map_ratio}">{map_image}{route_svg}{''.join(labelpins)}{''.join(scavloot)}{''.join(expins)}</div></div>
 <div class="list"><h3>脱出ポイントと方法 <small>※位置は目安あり。レイド中にOキー2連打で必ず確認</small></h3>
 <p class="note"><a class="il" href="{EN}{WIKI_MAP[mkey]}#Extractions" target="_blank" rel="noopener">🖼 wikiの{mkey} 脱出セクションを開く(全脱出の写真つき一覧)</a></p>{''.join(exrows)}{f'<p class="note">{exnote}</p>' if exnote else ''}
 <h3>金策スポットと必要な鍵 <small>{loot_heading_small}</small></h3>{''.join(lootrows)}
@@ -585,6 +605,7 @@ nav{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line);po
 .mbtn.tgl{opacity:.55}
 .mbtn.tgl.on{opacity:1;border-color:var(--amber);background:#242a24}
 .floor-switch{padding:3px;border:1px solid var(--line);border-radius:5px;background:#0d0f12}
+.floor-caption{display:inline-flex;align-items:center;padding:0 6px;color:#79e9fa;font-size:10px;font-weight:800;letter-spacing:.08em}
 .floorbtn{height:30px;min-width:48px;justify-content:center;padding:0 10px}
 .floorbtn.on{border-color:#35d6f2;color:#dffbff;background:#17333a;box-shadow:inset 0 0 0 1px #35d6f244}
 .hint{font-size:10.5px;color:#8a8375}
@@ -689,9 +710,13 @@ document.querySelectorAll(".mapsec").forEach(sec=>{
  // init: mobile starts zoomed-in a bit, centered
  requestAnimationFrame(()=>{
   const H=wrap.clientHeight, mhh=map.offsetHeight;
-  if(mhh<H){ty=(H-mhh)/2}
+  if(map.dataset.map==="Interchange"&&mhh>H){ty=(H-mhh)/2}
+  else if(mhh<H){ty=(H-mhh)/2}
   if(window.innerWidth<640){zoomAt(wrap.clientWidth/2,wrap.clientHeight/2,1.8)}else{apply()}
  });
+ wrap.addEventListener("floorchange",()=>requestAnimationFrame(()=>{
+  s=1;tx=0;const H=wrap.clientHeight,mhh=map.offsetHeight;ty=(H-mhh)/2;apply();
+ }));
  sec.querySelector(".zin")?.addEventListener("click",()=>zoomAt(wrap.clientWidth/2,wrap.clientHeight/2,1.35));
  sec.querySelector(".zout")?.addEventListener("click",()=>zoomAt(wrap.clientWidth/2,wrap.clientHeight/2,1/1.35));
  const updRot=()=>{wrap.classList.toggle("rot",
@@ -747,17 +772,21 @@ document.querySelectorAll(".mapsec").forEach(sec=>{
  wrap.addEventListener("wheel",e=>{e.preventDefault();const[x,y]=pos(e);zoomAt(x,y,e.deltaY<0?1.15:1/1.15)},{passive:false});
 });
 document.querySelectorAll(".floor-switch").forEach(sw=>{
- const sec=sw.closest(".mapsec"),img=sec.querySelector(".floor-map");
+ const sec=sw.closest(".mapsec"),img=sec.querySelector(".floor-map"),map=sec.querySelector(".map");
+ const recenter=()=>sec.querySelector('.map-wrap').dispatchEvent(new Event('floorchange'));
+ img.addEventListener('load',recenter);
  const setFloor=floor=>{
   sec.dataset.floor=floor;
   sw.querySelectorAll(".floorbtn").forEach(b=>b.classList.toggle("on",b.dataset.floor===floor));
   img.src=img.dataset["src"+floor[0].toUpperCase()+floor.slice(1)];
-  img.alt=`Interchange ${floor==="basement"?"地下":floor==="first"?"1階":"2階"}`;
-  const labelOn=sec.querySelector('.tgl[data-g="labelpin"]')?.classList.contains("on");
-  const lootOn=sec.querySelector('.tgl[data-g="lootpin"]')?.classList.contains("on");
-  sec.querySelectorAll('.labelpin[data-floor]').forEach(p=>p.classList.toggle("hid",!labelOn||p.dataset.floor!==floor));
-  sec.querySelectorAll('.lootpin[data-floor]').forEach(p=>p.classList.toggle("hid",!lootOn||p.dataset.floor!==floor));
+  map.style.aspectRatio=img.dataset["ratio"+floor[0].toUpperCase()+floor.slice(1)];
+  img.alt=`Interchange ${floor==="overview"?"全体":floor==="basement"?"地下":floor==="first"?"1階":"2階"}`;
+  ['labelpin','lootpin','exapin','excpin','scavpin'].forEach(group=>{
+   const groupOn=sec.querySelector(`.tgl[data-g="${group}"]`)?.classList.contains("on");
+   sec.querySelectorAll(`.${group}[data-floor]`).forEach(p=>p.classList.toggle("hid",!groupOn||p.dataset.floor!==floor));
+  });
   sec.querySelectorAll('.floor-list').forEach(r=>r.classList.toggle("hid",r.dataset.floor!==floor));
+  recenter();setTimeout(recenter,80);setTimeout(recenter,320);
  };
  sw.querySelectorAll(".floorbtn").forEach(b=>b.addEventListener("click",()=>setFloor(b.dataset.floor)));
  setFloor("first");
