@@ -1,7 +1,8 @@
-const C = "eftmap-v4";
+const C = "eftmap-v5";
 const ASSETS = ["./","./index.html","./manifest.json","./icon-192.png","./icon-512.png",
 "./map_Customs.svg","./map_Woods.svg","./map_Shoreline.svg","./map_Factory.svg",
-"./map_StreetsOfTarkov.svg","./map_GroundZero.svg","./map_Interchange.svg","./map_Lighthouse.svg",
+"./map_StreetsOfTarkov.svg","./map_GroundZero.svg","./map_Interchange.svg",
+"./map_Interchange_Basement.svg","./map_Interchange_1F.svg","./map_Interchange_2F.svg","./map_Lighthouse.svg",
 "./map_Reserve.svg"];
 
 self.addEventListener("install", e => {

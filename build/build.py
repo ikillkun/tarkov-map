@@ -19,6 +19,24 @@ IMG='https://www.google.com/search?tbm=isch&q='
 WIKI_MAP={'Customs':'Customs','Woods':'Woods','Shoreline':'Shoreline','Factory':'Factory',
  'StreetsOfTarkov':'Streets_of_Tarkov','GroundZero':'Ground_Zero','Interchange':'Interchange','Lighthouse':'Lighthouse','Reserve':'Reserve'}
 
+# Interchange's source SVG already contains three separate vector groups.  Keep
+# the exterior/garage ground layer as context and export clean per-floor assets.
+def build_interchange_floor_assets():
+    source_path = os.path.join(ROOT, 'map_Interchange.svg')
+    with open(source_path, encoding='utf-8') as source_file:
+        source = source_file.read()
+    hidden_groups = {
+        'Basement': '#First_Floor,#Second_Floor{display:none}',
+        '1F': '#Second_Floor{display:none}',
+        '2F': '#First_Floor{display:none}',
+    }
+    for suffix, rule in hidden_groups.items():
+        floor_svg = source.replace('>', f'><style id="floor_filter">{rule}</style>', 1)
+        with open(os.path.join(ROOT, f'map_Interchange_{suffix}.svg'), 'w', encoding='utf-8') as floor_file:
+            floor_file.write(floor_svg)
+
+build_interchange_floor_assets()
+
 def make_pct(mk):
     cfg=cfgs[mk]; (x1,z1),(x2,z2)=cfg['bounds']
     if mk=='Factory.svg':
@@ -42,7 +60,9 @@ ITEM_LINKS = {
  '7.62x51弾パック':'7.62x51mm_M80_ammo_pack_(20_pcs)','ELCAN':'Elcan_SpecterDR_1x/4x_scope',
  'REAP-IR':'Trijicon_REAP-IR_thermal_scope','AUG':'Steyr_AUG_A3_5.56x45_assault_rifle',
  '6B43':'6B43_Zabralo-Sh_body_armor','Kiver-M':'Kiver-M_bulletproof_helmet',
- 'M4A1':'Colt_M4A1_5.56x45_assault_rifle','Dorm room 314 marked key':'Dorm_room_314_marked_key','Kiba Arms外扉':'Kiba_Arms_International_outer_door_key','Tarcone Director\'s officeキー':'Tarcone_Director\'s_office_room_key','HK MP5':'HK_MP5_9x19_submachine_gun_(Navy_3_Round_Burst)',
+ 'M4A1':'Colt_M4A1_5.56x45_assault_rifle','Dorm room 314 marked key':'Dorm_room_314_marked_key','Kiba Arms外扉':'Kiba_Arms_International_outer_door_key','Kiba Arms内扉':'Kiba_Arms_inner_grate_door_key','Tarcone Director\'s officeキー':'Tarcone_Director\'s_office_room_key','HK MP5':'HK_MP5_9x19_submachine_gun_(Navy_3_Round_Burst)',
+ 'Object 11SR keycard':'Object_11SR_keycard','Object 14 keycard':'Object_14_keycard',
+ 'EMERCOM medical unit key':'EMERCOM_medical_unit_key','ULTRA medical storage key':'ULTRA_medical_storage_key',
 }
 def linkify(items):
     out = items
@@ -158,7 +178,7 @@ LOOT = {
  'Factory': [('オフィス','金庫・ファイルキャビネット','一部Factory系キー(メインは鍵不要)',(21,39)),('Rafters(3F通路)','武器箱','鍵不要',(18,4)),('Med Tent','医療系','鍵不要',(-18,-29))],
  'StreetsOfTarkov': [('Kilmovモール','店舗ルート広範囲','鍵不要',(-128,-35)),('LERM Expo','カバンのレアドロップ+車部品','鍵不要',(239,-60)),('Lexos','車部品・工業','一部部屋キーあり',(66,305)),('Cinema','雑貨・金策','鍵不要',(-175,400)),('Pinewoodホテル','鍵部屋多数','要: Pinewood各部屋キー(215など)',(-35,64))],
  'GroundZero': [('TerraGroup本社','インテリ・オフィスルート','一部オフィスキー',(-50,0)),('Tarbank','金庫・金策','一部キー(金庫室)',(43,150))],
- 'Interchange': [('Techlight','電子部品(高額)','鍵不要',(91,54)),('Kiba','銃器店','要: Kiba Arms外扉+内扉キーの2本',(-18,-25)),('Goshan/IDEA/OLI','食料・雑貨・広範囲','鍵不要',(-115,-45)),('Ultra Medical','医療','鍵不要',(54,-128))],
+ 'Interchange': [],
  'Lighthouse': [('浄水場','高級ルート(ローグ注意)','鍵不要エリア多め',(-65,-600)),('Cottages','金庫・レア','要: コテージ各キー',(-162,-225)),('Train Yard','工業・武器','鍵不要',(-30,-882)),('VPX候補: Southern Villa / Hillside / 浄水場','VPX・Virtex・COFDM系の軍用電子品スポーン','一部キー部屋あり',(-151,-243))],
  'Reserve': [('White Kingサーバー','VPXなど軍用電子品のルーズルート','鍵不要',(-49.5,15.5)),('D-2サーバー室','VPX・COFDM・Virtex候補','電源投入・待ち伏せ注意',('pct',69.3,81.7)),('RB-PKPTS','VPXの有力候補。鍵部屋','RB-PKPTS key',('pct',70.0,30.0))],
 }
@@ -183,6 +203,31 @@ STREETS_SCAV_SPOTS = [
 STREETS_SCAV_ROUTES = [
  ('北コース','#ff6a2a',[(18,24),(36.5,27),(47,31),(62,30),(60,43.5),(46.5,47.5)]),
  ('南コース','#31c9e8',[(2.5,84),(16,70),(25,76),(31,77),(48,82),(68,88),(79,85),(86.5,72)]),
+]
+
+INTERCHANGE_FLOOR_NAMES = {'basement':'地下駐車場','first':'1階','second':'2階'}
+INTERCHANGE_LABEL_FLOORS = {
+ 'basement': {'Power Station','Go Kart','Four Camp','Cargo Containers','Wall Break','Ramps','Oli Tower','Idea Tower','Scav Camp','Highway Construction','Garage A','Garage B','Garage C','Garage D'},
+ 'first': {'IDEA','Goshan','OLI','Nortex','TRend','Mode7','TTS','Book Store','Dino Clothes','EMERCOM','Kostin','Bizarro','Spiel','Voyage','Viking','Mantis','German','The National','Brutal','Kiba','Pretty Lights','Telespot','Revis','ADIK','Generic','Top Brand','Sports','Yushka','Rasmussen','Avokado','Boots 4 Life','Texho','Dom'},
+ 'second': {'Father & Sons','Tarkovstar','Eastland','Arena','ТАРЗДРАВ','МЕБЕЛЬ МК','Intourist','Burger Spot','FCK','McDaniels','Tarducks','Coffee Joy','Jacob & Jacob','ПУШКИН','Sushi Huyushi','Underway','Burger House','Philly Cute','Shiccos','МУЗЕЙ ИСТОРИИ','Papillon','ЗАКРЫТО НА РЕМОНТ','НА-СВЯЗИ','СКОРО ОТКРЫТИЕ','Figaro','АПТЕКА','SARA','Urban Clothes','TECHLIGHT','Fashion Store'},
+}
+
+# floor, risk, name, description, requirement, SVG/game anchor
+INTERCHANGE_FLOOR_LOOT = [
+ ('basement','steady','Garage A（IDEA下）','武器箱・工具箱・ダッフルを拾いながら北側ランプへ抜ける。中央より射線が短め','鍵不要',(33,-222)),
+ ('basement','steady','Garage B / C','柱沿いの武器箱・工具箱・ダッフル。暗所なのでライトと音を優先','鍵不要',(30,-35)),
+ ('basement','steady','Garage D（OLI下）','工具・工業品・武器箱を確認してOLI側ランプへ。SCAVの帰路に組み込みやすい','鍵不要',(20,138)),
+ ('basement','valuable','Saferoom / Object 14方面','コンテナ・武器系の高額候補。電源とキーカード条件があり、待ち伏せに注意','Object 11SR keycard / Object 14 keycard',('pct',58.0,57.5)),
+ ('first','steady','IDEA事務所・倉庫','PCブロック、工具、家電、貴重品候補。正面入口より裏通路から入ると比較的安全','鍵不要',(-34,-235)),
+ ('first','steady','Goshan食料棚・裏倉庫','食料を大量確保しつつ、裏側の武器箱・工具箱を確認','鍵不要',(-115,-45)),
+ ('first','steady','OLI裏棚・事務所','水フィルター、モーター、燃料など隠れ家用の工業品とPCブロック','鍵不要',(-28,140)),
+ ('first','valuable','Rasmussen / Texho','GPU・テトリスなど電子部品候補。短時間で棚を見て上階の射線から離れる','鍵不要',(40,38)),
+ ('first','danger','KIBA Arms','武器・アタッチメントの高額部屋。電源と2本の鍵が必要で中央モールの激戦地','Kiba Arms外扉 + Kiba Arms内扉',(-18,-25)),
+ ('first','valuable','Mantis / EMERCOM','医療品、注射器、LEDX候補。EMERCOM側は鍵が必要','EMERCOM medical unit key（Mantisは鍵不要）',(15,-85)),
+ ('second','valuable','TECHLIGHT','GPU・テトリス・電子部品の最重要候補。開幕は特に激戦','鍵不要',(91,54)),
+ ('second','danger','ULTRA Medical Storage','LEDX・高級医療品候補。電源投入後に開錠でき、Techlight前で非常に危険','ULTRA medical storage key',(54,-128)),
+ ('second','steady','薬局 / TARZDRAV','医療品と消耗品。Techlightへ直行せず周辺店舗を拾う安定寄りルート','鍵不要',(71,-128)),
+ ('second','steady','フードコート / Burger Spot','レジ・食料・ダッフルを確認。中央吹き抜けの射線を切りながら移動','鍵不要',(-27,-103)),
 ]
 
 EXTRA_EXNOTE = {
@@ -284,7 +329,13 @@ for mkey in MAP_JA:
     labelpins=[]
     for (lx,lz),label,size in cfgs[mkey+'.svg'].get('labels',[]):
         x,y=p(lx,lz)
-        labelpins.append(f'<span class="labelpin" style="left:{x}%;top:{y}%">{label}</span>')
+        floor_attr=''
+        floor_hidden=''
+        if mkey == 'Interchange':
+            floor=next((key for key,names in INTERCHANGE_LABEL_FLOORS.items() if label in names), 'basement')
+            floor_attr=f' data-floor="{floor}"'
+            floor_hidden='' if floor == 'first' else ' hid'
+        labelpins.append(f'<span class="labelpin{floor_hidden}"{floor_attr} style="left:{x}%;top:{y}%">{label}</span>')
     scavloot=[]; scavrows=[]; route_svg=''; scav_toggle=''
     if mkey == 'StreetsOfTarkov':
         route_parts=[]
@@ -331,6 +382,20 @@ for mkey in MAP_JA:
             modal_data[sid]['x']=x; modal_data[sid]['y']=y
             expins.append(f'<button class="pin scavpin hid" style="left:{x}%;top:{y}%" data-m="{sid}"><span class="exdot exs">S</span><span class="exlbl exlbls">{ename}</span></button>')
     lootrows=[]
+    if mkey == 'Interchange':
+        risk_label={'steady':'安定','valuable':'高額','danger':'激戦'}
+        for j,(floor,risk,lname,ldesc,lkey,anchor) in enumerate(INTERCHANGE_FLOOR_LOOT,1):
+            lid=f'{mkey}_fl{j}'
+            x,y=anchor_pct(p,anchor)
+            q=quote_plus(f'Escape from Tarkov Interchange {lname} loot')
+            modal_data[lid]={'title':f'{INTERCHANGE_FLOOR_NAMES[floor]}金策: {lname}',
+              'sub':f'{risk_label[risk]}スポット','place':f'Interchange / {INTERCHANGE_FLOOR_NAMES[floor]}',
+              'desc':ldesc,'items':linkify(lkey),'img':IMG+q,'map':mkey,
+              'wl':'https://www.tarkov.dev/map/interchange','wt':'🗺 tarkov.devのInterchangeマップ',
+              'pt':'loot','pn':'$','x':x,'y':y}
+            expins.append(f'<button class="pin lootpin flpin fl-{risk} hid" data-floor="{floor}" style="left:{x}%;top:{y}%" data-m="{lid}"><span class="sldot">$</span><span class="sllbl">{lname}</span></button>')
+            row_hidden='' if floor == 'first' else ' hid'
+            lootrows.append(f'<div class="exrow floor-list flrow flrow-{risk}{row_hidden}" data-floor="{floor}"><span class="exbadge flbadge-{risk}">{INTERCHANGE_FLOOR_NAMES[floor]}・{risk_label[risk]}</span><b>{lname}</b> — {ldesc}<br><small>条件: {linkify(lkey)}</small></div>')
     for j,(lname,ldesc,lkey,anchor) in enumerate(LOOT.get(mkey,[]),1):
         lid=f'{mkey}_l{j}'
         q=quote_plus(f'Escape from Tarkov {mkey} {lname} loot')
@@ -342,10 +407,18 @@ for mkey in MAP_JA:
         lootrows.append(f'<div class="exrow lootr"><span class="exbadge exl2">$</span><b>{lname}</b> — {ldesc}<br><small>鍵: {linkify(lkey)}</small></div>')
     exnote=EXTRA_EXNOTE.get(mkey,'')
     W,H=dims[mkey]
+    floor_controls=''
+    map_image=f'<img loading="lazy" src="map_{mkey}.svg" alt="{mkey}">'
+    if mkey == 'Interchange':
+        floor_controls='''<div class="grp floor-switch" aria-label="館内階層">
+<button class="mbtn floorbtn" data-floor="basement">地下</button><button class="mbtn floorbtn on" data-floor="first">1階</button><button class="mbtn floorbtn" data-floor="second">2階</button></div>'''
+        map_image='<img class="floor-map" loading="lazy" src="map_Interchange_1F.svg" alt="Interchange 1階" data-src-basement="map_Interchange_Basement.svg" data-src-first="map_Interchange_1F.svg" data-src-second="map_Interchange_2F.svg">'
+    loot_heading_small='上の階層ボタンで地下・1階・2階を切替。「金策」で現在階の位置表示' if mkey == 'Interchange' else 'マップの「金策」レイヤーで位置表示'
     tabs.append(f'<button class="tab" data-t="{mkey}">{MAP_JA[mkey]}</button>')
     sections.append(f'''<section id="{mkey}" class="mapsec">
 <div class="mapbar">
 <div class="grp"><button class="mbtn zout">−</button><button class="mbtn zin">＋</button><button class="mbtn fsb">⛶</button></div>
+{floor_controls}
 <div class="grp layers">
 <button class="mbtn tgl on" data-g="labelpin"><i class="sw" style="--c:#d4c6a5"></i>地名</button>
 <button class="mbtn tgl on" data-g="exapin"><i class="sw sq" style="--c:#1eae4e"></i>常設EX</button>
@@ -354,10 +427,10 @@ for mkey in MAP_JA:
 <button class="mbtn tgl" data-g="lootpin"><i class="sw" style="--c:#d9a521"></i>金策</button>
 {scav_toggle}
 </div></div>
-<div class="map-wrap"><div class="map" data-map="{mkey}" style="aspect-ratio:{W}/{H}"><img loading="lazy" src="map_{mkey}.svg" alt="{mkey}">{route_svg}{''.join(labelpins)}{''.join(scavloot)}{''.join(expins)}</div></div>
+<div class="map-wrap"><div class="map" data-map="{mkey}" style="aspect-ratio:{W}/{H}">{map_image}{route_svg}{''.join(labelpins)}{''.join(scavloot)}{''.join(expins)}</div></div>
 <div class="list"><h3>脱出ポイントと方法 <small>※位置は目安あり。レイド中にOキー2連打で必ず確認</small></h3>
 <p class="note"><a class="il" href="{EN}{WIKI_MAP[mkey]}#Extractions" target="_blank" rel="noopener">🖼 wikiの{mkey} 脱出セクションを開く(全脱出の写真つき一覧)</a></p>{''.join(exrows)}{f'<p class="note">{exnote}</p>' if exnote else ''}
-<h3>金策スポットと必要な鍵 <small>マップの「金策」レイヤーで位置表示</small></h3>{''.join(lootrows)}
+<h3>金策スポットと必要な鍵 <small>{loot_heading_small}</small></h3>{''.join(lootrows)}
 {f'<h3>SCAV向け安全寄り金策 <small>「SCAV金策」で北・南コースを表示</small></h3><p class="note scavnote">安全は保証できません。残り時間・銃声・自分の脱出口を優先し、Lexos正面と大通りは避けて建物の裏をつないでください。</p>{"".join(scavrows)}' if scavrows else ''}</div></section>''')
 
 GUN = lambda slug,name: f'<a class="il" href="{EN}{quote(slug)}" target="_blank" rel="noopener">{name}</a>'
@@ -511,6 +584,9 @@ nav{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line);po
 .sw.sq{border-radius:2px}
 .mbtn.tgl{opacity:.55}
 .mbtn.tgl.on{opacity:1;border-color:var(--amber);background:#242a24}
+.floor-switch{padding:3px;border:1px solid var(--line);border-radius:5px;background:#0d0f12}
+.floorbtn{height:30px;min-width:48px;justify-content:center;padding:0 10px}
+.floorbtn.on{border-color:#35d6f2;color:#dffbff;background:#17333a;box-shadow:inset 0 0 0 1px #35d6f244}
 .hint{font-size:10.5px;color:#8a8375}
 .map-wrap{position:relative;overflow:hidden;height:74vh;border:1px solid var(--line);border-radius:4px;touch-action:none;overscroll-behavior:contain;cursor:grab;background:#0a0c0e}
 .map-wrap.fs{position:fixed;inset:0;z-index:45;height:100dvh;max-height:none;border:none;border-radius:0}
@@ -541,10 +617,14 @@ body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .slpin{z-index:4}
 .sldot{display:flex;align-items:center;justify-content:center;width:25px;height:25px;border:2px solid #fff;border-radius:5px;color:#111;font-size:11px;font-weight:900;box-shadow:0 2px 7px #000}
 .sl-safe .sldot{background:#49d17d}.sl-valuable .sldot{background:#ffd33d}.sl-body .sldot{background:#62a9ff;color:#07111d}
+.flpin{z-index:4}.flpin .sldot{border-radius:50%}
+.fl-steady .sldot{background:#49d17d}.fl-valuable .sldot{background:#ffd33d}.fl-danger .sldot{background:#ff5b56;color:#fff}
 .sllbl{position:absolute;left:calc(100% - 3px);top:50%;transform:translateY(-50%);font-size:10px;font-weight:800;color:#fff;white-space:nowrap;background:#111d;border-radius:3px;padding:2px 4px;text-shadow:0 1px 2px #000;pointer-events:none}
 .slrow-safe{border-left-color:#49d17d}.slrow-valuable{border-left-color:#ffd33d}.slrow-body{border-left-color:#62a9ff}
 .slbadge-safe{background:#49d17d!important;color:#111!important}.slbadge-valuable{background:#ffd33d!important;color:#111!important}.slbadge-body{background:#62a9ff!important;color:#07111d!important}
 .scavnote{border-left:3px solid #35d6f2!important}
+.flrow-steady{border-left-color:#49d17d}.flrow-valuable{border-left-color:#ffd33d}.flrow-danger{border-left-color:#ff5b56}
+.flbadge-steady{background:#49d17d!important;color:#111!important}.flbadge-valuable{background:#ffd33d!important;color:#111!important}.flbadge-danger{background:#ff5b56!important;color:#fff!important}
 @media(max-width:640px){.exlbl{font-size:9px}}
 
 .pin:active .exdot,.pin:hover .exdot{transform:scale(1.35)}
@@ -666,9 +746,28 @@ document.querySelectorAll(".mapsec").forEach(sec=>{
  window.addEventListener("mouseup",()=>{mdrag=null;wrap.style.cursor="grab"});
  wrap.addEventListener("wheel",e=>{e.preventDefault();const[x,y]=pos(e);zoomAt(x,y,e.deltaY<0?1.15:1/1.15)},{passive:false});
 });
+document.querySelectorAll(".floor-switch").forEach(sw=>{
+ const sec=sw.closest(".mapsec"),img=sec.querySelector(".floor-map");
+ const setFloor=floor=>{
+  sec.dataset.floor=floor;
+  sw.querySelectorAll(".floorbtn").forEach(b=>b.classList.toggle("on",b.dataset.floor===floor));
+  img.src=img.dataset["src"+floor[0].toUpperCase()+floor.slice(1)];
+  img.alt=`Interchange ${floor==="basement"?"地下":floor==="first"?"1階":"2階"}`;
+  const labelOn=sec.querySelector('.tgl[data-g="labelpin"]')?.classList.contains("on");
+  const lootOn=sec.querySelector('.tgl[data-g="lootpin"]')?.classList.contains("on");
+  sec.querySelectorAll('.labelpin[data-floor]').forEach(p=>p.classList.toggle("hid",!labelOn||p.dataset.floor!==floor));
+  sec.querySelectorAll('.lootpin[data-floor]').forEach(p=>p.classList.toggle("hid",!lootOn||p.dataset.floor!==floor));
+  sec.querySelectorAll('.floor-list').forEach(r=>r.classList.toggle("hid",r.dataset.floor!==floor));
+ };
+ sw.querySelectorAll(".floorbtn").forEach(b=>b.addEventListener("click",()=>setFloor(b.dataset.floor)));
+ setFloor("first");
+});
 document.querySelectorAll(".tgl").forEach(b=>b.addEventListener("click",()=>{
  const sec=b.closest(".mapsec");b.classList.toggle("on");
- sec.querySelectorAll("."+b.dataset.g).forEach(p=>p.classList.toggle("hid",!b.classList.contains("on")));
+ sec.querySelectorAll("."+b.dataset.g).forEach(p=>{
+  const wrongFloor=p.dataset.floor&&sec.dataset.floor&&p.dataset.floor!==sec.dataset.floor;
+  p.classList.toggle("hid",!b.classList.contains("on")||wrongFloor);
+ });
 }));
 // modal
 const modal=document.getElementById("modal"),mt=document.getElementById("mt"),ms=document.getElementById("ms"),
