@@ -22,10 +22,16 @@ WIKI_MAP={'Customs':'Customs','Woods':'Woods','Shoreline':'Shoreline','Factory':
 # Interchange's source SVG already contains three separate vector groups. Crop
 # the indoor exports to the mall so each floor fills the viewer instead of
 # appearing as a small island in the middle of the outdoor map.
-INTERCHANGE_CROP = (400, 100, 600, 760)  # x, y, width, height in source SVG
+INTERCHANGE_FLOOR_CROPS = {
+    'basement': (400, 100, 600, 760),
+    'first': (400, 100, 600, 760),
+    # The second-floor footprint is much smaller than the first floor. Give it
+    # its own tighter viewport so it is readable at the same viewer size.
+    'second': (460, 290, 500, 300),
+}
 
-def interchange_crop_pct(x, y):
-    crop_x, crop_y, crop_w, crop_h = INTERCHANGE_CROP
+def interchange_crop_pct(x, y, floor):
+    crop_x, crop_y, crop_w, crop_h = INTERCHANGE_FLOOR_CROPS[floor]
     return (round((x / 100 * dims['Interchange'][0] - crop_x) / crop_w * 100, 2),
             round((y / 100 * dims['Interchange'][1] - crop_y) / crop_h * 100, 2))
 
@@ -33,13 +39,13 @@ def build_interchange_floor_assets():
     source_path = os.path.join(ROOT, 'map_Interchange.svg')
     with open(source_path, encoding='utf-8') as source_file:
         source = source_file.read()
-    hidden_groups = {
-        'Basement': '#First_Floor,#Second_Floor{display:none}',
-        '1F': '#Second_Floor{display:none}',
-        '2F': '#First_Floor{display:none}',
+    exports = {
+        'Basement': ('basement', '#First_Floor,#Second_Floor{display:none}'),
+        '1F': ('first', '#Second_Floor{display:none}'),
+        '2F': ('second', '#First_Floor{display:none}'),
     }
-    for suffix, rule in hidden_groups.items():
-        crop_x, crop_y, crop_w, crop_h = INTERCHANGE_CROP
+    for suffix, (floor, rule) in exports.items():
+        crop_x, crop_y, crop_w, crop_h = INTERCHANGE_FLOOR_CROPS[floor]
         floor_svg = source.replace('viewBox="0 0 1127.6852 947.02582"',
                                    f'viewBox="{crop_x} {crop_y} {crop_w} {crop_h}"', 1)
         floor_svg = floor_svg.replace('>', f'><style id="floor_filter">{rule}</style>', 1)
@@ -346,7 +352,7 @@ for mkey in MAP_JA:
         if mkey == 'Interchange':
             floor=next((key for key,names in INTERCHANGE_LABEL_FLOORS.items() if label in names), 'basement')
             if floor != 'overview':
-                x,y=interchange_crop_pct(x,y)
+                x,y=interchange_crop_pct(x,y,floor)
             floor_attr=f' data-floor="{floor}"'
             floor_hidden='' if floor == 'first' else ' hid'
         labelpins.append(f'<span class="labelpin{floor_hidden}"{floor_attr} style="left:{x}%;top:{y}%">{label}</span>')
@@ -404,7 +410,7 @@ for mkey in MAP_JA:
         for j,(floor,risk,lname,ldesc,lkey,anchor) in enumerate(INTERCHANGE_FLOOR_LOOT,1):
             lid=f'{mkey}_fl{j}'
             x,y=anchor_pct(p,anchor)
-            x,y=interchange_crop_pct(x,y)
+            x,y=interchange_crop_pct(x,y,floor)
             q=quote_plus(f'Escape from Tarkov Interchange {lname} loot')
             modal_data[lid]={'title':f'{INTERCHANGE_FLOOR_NAMES[floor]}金策: {lname}',
               'sub':f'{risk_label[risk]}スポット','place':f'Interchange / {INTERCHANGE_FLOOR_NAMES[floor]}',
@@ -431,8 +437,10 @@ for mkey in MAP_JA:
     if mkey == 'Interchange':
         floor_controls='''<div class="grp floor-switch" aria-label="館内階層">
 <span class="floor-caption">表示</span><button class="mbtn floorbtn" data-floor="overview">全体</button><button class="mbtn floorbtn" data-floor="basement">地下</button><button class="mbtn floorbtn on" data-floor="first">1階</button><button class="mbtn floorbtn" data-floor="second">2階</button></div>'''
-        map_ratio=f'{INTERCHANGE_CROP[2]}/{INTERCHANGE_CROP[3]}'
-        map_image='<img class="floor-map" loading="lazy" src="map_Interchange_1F.svg" alt="Interchange 1階" data-src-overview="map_Interchange.svg" data-src-basement="map_Interchange_Basement.svg" data-src-first="map_Interchange_1F.svg" data-src-second="map_Interchange_2F.svg" data-ratio-overview="1127.6852/947.02582" data-ratio-basement="600/760" data-ratio-first="600/760" data-ratio-second="600/760">'
+        first_crop=INTERCHANGE_FLOOR_CROPS['first']; second_crop=INTERCHANGE_FLOOR_CROPS['second']
+        basement_crop=INTERCHANGE_FLOOR_CROPS['basement']
+        map_ratio=f'{first_crop[2]}/{first_crop[3]}'
+        map_image=f'<img class="floor-map" loading="lazy" src="map_Interchange_1F.svg?v=2" alt="Interchange 1階" data-src-overview="map_Interchange.svg" data-src-basement="map_Interchange_Basement.svg?v=2" data-src-first="map_Interchange_1F.svg?v=2" data-src-second="map_Interchange_2F.svg?v=2" data-ratio-overview="1127.6852/947.02582" data-ratio-basement="{basement_crop[2]}/{basement_crop[3]}" data-ratio-first="{first_crop[2]}/{first_crop[3]}" data-ratio-second="{second_crop[2]}/{second_crop[3]}">'
     loot_heading_small='上の階層ボタンで地下・1階・2階を切替。「金策」で現在階の位置表示' if mkey == 'Interchange' else 'マップの「金策」レイヤーで位置表示'
     tabs.append(f'<button class="tab" data-t="{mkey}">{MAP_JA[mkey]}</button>')
     sections.append(f'''<section id="{mkey}" class="mapsec">
@@ -640,6 +648,7 @@ body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .sl-safe .sldot{background:#49d17d}.sl-valuable .sldot{background:#ffd33d}.sl-body .sldot{background:#62a9ff;color:#07111d}
 .flpin{z-index:4}.flpin .sldot{border-radius:50%}
 .fl-steady .sldot{background:#49d17d}.fl-valuable .sldot{background:#ffd33d}.fl-danger .sldot{background:#ff5b56;color:#fff}
+.flpin[data-m="Interchange_fl12"] .sllbl{left:auto;right:calc(100% - 3px)}
 .sllbl{position:absolute;left:calc(100% - 3px);top:50%;transform:translateY(-50%);font-size:10px;font-weight:800;color:#fff;white-space:nowrap;background:#111d;border-radius:3px;padding:2px 4px;text-shadow:0 1px 2px #000;pointer-events:none}
 .slrow-safe{border-left-color:#49d17d}.slrow-valuable{border-left-color:#ffd33d}.slrow-body{border-left-color:#62a9ff}
 .slbadge-safe{background:#49d17d!important;color:#111!important}.slbadge-valuable{background:#ffd33d!important;color:#111!important}.slbadge-body{background:#62a9ff!important;color:#07111d!important}
