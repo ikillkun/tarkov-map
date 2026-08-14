@@ -48,148 +48,19 @@ def linkify(items):
             out = out.replace(k, f'<a class="il" href="{EN}{quote(ITEM_LINKS[k])}" target="_blank" rel="noopener">{k}</a>')
     return out
 
-# tasks: (name, trader, diff, imp, place, desc, items, en_slug, anchor)
-MAPS = {}
-MAPS['Customs'] = [
- ('Abandoned Cargo','Therapist',1,'中','ターミナル周辺','TerraGroupロゴ入りパレット7か所のどれか1つをマーク','MS2000マーカー×1','Abandoned_Cargo',(10,-70)),
- ('The Extortionist','Skier',2,'高','Crackhouse付近の茂み→Warehouse3脇の小屋','死体からUnknown Key→施錠小屋の床の服からカーゴ回収→生還','なし(鍵はレイド内)','The_Extortionist',(45,-140)),
- ('Shipment Tracking','Therapist',2,'中','ボイラー棟2F重役室(Repair Shop隣)','赤いドアを開錠し積荷リスト回収→生還','Company director\'s room key','Shipment_Tracking',(100,-38)),
- ('The Courier','Mechanic',2,'中','新ガソスタ裏のゴミ箱','支給REAP-IRを設置(セキュア不可・ロスト注意)','REAP-IR(支給済)','The_Courier',(404,38)),
- ('Chemical - Part 1','Skier',2,'高','西側の線路上の貨車(目安)','貨車内のフォルダ回収→生還→220キーと共に納品','Dorm room 220キー(納品用)','Chemical_-_Part_1',(540,-105)),
- ('The Punisher - Part 1','Prapor',3,'高','マップ全域','Customsでスカブを規定数討伐(Punisherチェーン開始。目標欄参照)','戦闘装備','The_Punisher_-_Part_1',None),
- ('Break the Deal','Ragman',3,'中','ボイラー(3本パイプ工場)の足場','DVL(マグ外す)→マグ→ELCAN→7.62x51弾パックの順に4点設置','ELCAN(所持済)・7.62x51パック','Break_the_Deal',(112,-58)),
- ('Huntsman Path - Trophy','Jaeger',5,'高','寮/新ガソスタ/工事現場/W4棟のどこか','ボスのレシャラを討伐し金TT-33をFIR回収(セキュア不可)','なし(フィギュア救済あり)','The_Huntsman_Path_-_Trophy',(300,-40)),
-]
-MAPS['Woods'] = [
- ('Hiking (80%)','Peacekeeper',2,'低','Woods内の指定地点(目標欄参照)','残り1〜2か所を訪問するだけ。Woods行くついでに完了','なし','Hiking',None),
- ('Ice Cream Cones (16%)','Prapor',2,'中','バス停周辺のバス(目安)','6L31 60連マガジン×2を指定ポイントに設置','6L31 60連×2','Ice_Cream_Cones',(-234,357)),
- ('Metal Birds','Peacekeeper',2,'中','ヘリ関連地点(目標欄参照)','設置/納品系。詳細はゲーム内目標参照','対象アイテム(目標欄参照)','Metal_Birds',None),
- ('Supply Plans','Therapist',2,'中','小屋(目標欄のマーカー参照)','補給計画のメモを回収して納品','なし','Supply_Plans',None),
- ('A Helping Hand','Mechanic',2,'中','Woods内(目標欄参照)','発見/回収系。詳細は目標欄とwikiを確認','なし','A_Helping_Hand',None),
- ('Shipping Delay - Part 1','Prapor',3,'中','Convoy(車列)周辺が有力(目標欄参照)','積荷関連の回収/確認系。詳細は目標欄参照','なし','Shipping_Delay_-_Part_1',(168,-600)),
- ('Gratitude','Ragman',3,'高','製材所の湖側の木製桟橋(樽の間)','衣類4点を設置。1点20秒×4で無防備、夜レイド推奨','Ghostバラクラバ・緑シュマグ・RayBench・丸フレームサングラス','Gratitude',(-45,15)),
- ('Huntsman Path - Woods Keeper','Jaeger',5,'高','製材所(Sawmill)','ボスのシュトゥルマンを討伐しドロップ品を納品','対ボス装備','The_Huntsman_Path_-_Woods_Keeper',(10,-3)),
- ('Swift','Jaeger',5,'低','マップ全域','アーマー・ヘルメット無しでPMCを15キル','防具なし縛り','Swift',None),
-]
-MAPS['Shoreline'] = [
- ('Master Key','Peacekeeper',2,'高','リゾート北のバンカー','椅子の上の鍵を回収→生還して納品(死亡で取り直し)','なし','Master_Key',(-153,-290)),
- ('Anesthesia','Prapor',2,'高','沼〜村エリアのサニタール取引所3か所','白いテーブルに薬瓶+血痕が目印。3か所にMS2000を設置(Prapor評判+0.25)','MS2000マーカー×3','Anesthesia',(326,-118.5)),
- ('Health Care Privacy - Part 2','Therapist',2,'中','リゾート周辺ほか(目標欄参照)','P1の続き。対象をMS2000でマーク(対象は目標欄で確認)','MS2000マーカー×1〜2','Health_Care_Privacy_-_Part_2',(-258.2,-71.2)),
- ('Eagle Eye','Peacekeeper',2,'中','Shoreline内(目標欄参照)','発見/監視系。詳細は目標欄とwikiを確認','なし','Eagle_Eye',None),
- ('Ill-Wisher','Mechanic',3,'中','電波塔方面(目安)','アンテナ2基を同一レイドで発見→そのレイド内で脱出まで必須','なし','Ill-Wisher',(-708.9,93.91)),
- ('No Swiping (10%)','Skier',4,'中','密輸業者基地(北エリア)','密輸業者基地で敵を10キル(残り9)','戦闘装備','No_Swiping',(-350,-270)),
- ('Wet Job - Part 1','Peacekeeper',4,'中','マップ全域','サプ付きM4A1/ADAR/TX-15でスカブ10キル','サプ付きM4A1系','Wet_Job_-_Part_1',None),
- ('Thirsty - Hounds','Jaeger',4,'中','マップ全域(22:00-7:00)','夜間限定でスカブ12キル。5時までに入るのが目安','夜戦装備','Thirsty_-_Hounds',None),
-]
-MAPS['Factory'] = [
- ('Black Swan','Mechanic',2,'中','地下トンネル','熱交換器3基をMS2000でマーク','MS2000マーカー×3','Black_Swan',(-2,-24.5)),
- ('All Is Revealed','Therapist',2,'中','タンクコンテナ#28(目安)','破損タンクから化学サンプルを採取','なし','All_Is_Revealed',(4.5,10.5)),
- ('Exit Here','Skier',2,'低','Factory内(目標欄参照)','脱出/場所発見系。目標欄参照','なし','Exit_Here',None),
- ('Dragnet','Jaeger',3,'中','地下のTerraGroup倉庫(Camera Bunker Door付近)','化学コンテナを回収→生還→納品','なし','Dragnet',(-20.5,23)),
- ('The Good Times - Part 1 (20%)','Prapor',5,'中','マップ全域','M4A1/M16+6B43+Kiver-M装備でPMCを10キル','M4A1 or M16・6B43・Kiver-M','The_Good_Times_-_Part_1',None),
- ('One-Way Ticket','Peacekeeper',5,'低','マップ全域','AUG使用でヘッドショット15キル','AUG','One-Way_Ticket',None),
-]
-MAPS['StreetsOfTarkov'] = [
- ('Cease Fire!','Jaeger',2,'中','Klimov Street脱出(通りの東端)','脱出エリア内で緑フレアを上空に発射→Survived脱出。RSP-30はメール支給','グリーンフレア(支給あり)','Cease_Fire!',(-233,33)),
- ('Audit','Ragman',2,'中','ФИНАНС(FINANCE)ビル2F','2F右手最初のオフィス、床の赤いファイルから会計メモ回収','なし','Audit',None),
- ('Population Census','Therapist',2,'中','住宅管理局の建物','住民記録のジャーナルを回収(建物内複数湧き)','なし','Population_Census',None),
- ('Beyond the Red Meat','Skier',3,'中','Belugaレストラン','シェフの日記を回収(2Fバーの棚など複数湧き)','なし(鍵は任意)','Beyond_the_Red_Meat',(-45,-52)),
- ('Glory to CPSU','Prapor',3,'中','博物館2F(任意でChekannaya 15)','プラポルの友人のジャーナルを回収→生還','なし','Glory_to_CPSU',None),
- ('Watching You','Mechanic',3,'中','Pinewoodホテル北棟 215号室','監視部屋のフラッシュドライブを回収','Pinewood hotel room 215 key','Watching_You',(-35,64)),
- ('The Secret to Productivity','Mechanic',3,'中','Hive(Malevicha 5)','水タバコラウンジに入る(死亡で最初からやり直し)','Relaxation room key','The_Secret_to_Productivity',(-212,300)),
- ('Urban Medicine','Therapist',3,'中','薬局など医療系施設(目標欄参照)','医療系の回収/納品タスク。詳細は目標欄参照','なし','Urban_Medicine',None),
- ("You've Got Mail",'Prapor',3,'中','郵便局(Post Office)エリア','郵便物/目標物を回収→生還。詳細は目標欄参照','なし',"You've_Got_Mail",None),
- ('District Patrol','Prapor',3,'中','マップ全域','Streetsでの討伐系。目標欄参照','戦闘装備','District_Patrol',None),
- ('Dandies','Ragman',3,'低','Streets内(目標欄参照)','詳細は目標欄/wiki参照','なし','Dandies',None),
- ('Secret Message','Prapor',3,'中','Streets内(目標欄参照)','回収/設置系。詳細は目標欄とwikiを確認','なし','Secret_Message',None),
- ('Revision - Streets of Tarkov','Skier',2,'中','指定された脱出ポイント','目標欄で指定された脱出から脱出するだけ。脱出リスト(下)で場所を確認','なし','Revision_-_Streets_of_Tarkov',None),
- ('Road Closed','Skier',2,'中','指定された脱出関連(目標欄参照)','脱出系タスク。Revisionと同レイドで消化しやすい','なし','Road_Closed',None),
- ('Humanitarian Supplies','Prapor',3,'中','支援物資の地点(目標欄参照)','マーク/設置系の可能性が高い。MS2000を持参推奨','MS2000マーカー(念のため)','Humanitarian_Supplies',None),
- ('Huntsman Path - Big Game','Jaeger',5,'高','LERM Expo(車ディーラー)','ボスのカバンを討伐(護衛多数、要ガチ装備)','対ボス装備','The_Huntsman_Path_-_Big_Game',(239,-60)),
-]
-MAPS['GroundZero'] = [
- ('Shady Contractor','Mechanic',2,'中','TerraGroup本社ビル(目安)','指定の書類/情報を回収する系。目標欄参照','なし','Shady_Contractor',(-50,0)),
- ('[KORD BREACH] Unanswered Calls','Therapist',3,'中','Ground Zero内(目標欄参照)','シーズン1タスク。発見系、目標欄参照','なし','Unanswered_Calls',None),
-]
-MAPS['Interchange'] = [
- ('Long Line','Ragman',3,'中','モール内外','スカブを規定数討伐(目標欄参照)。モール内が効率的','戦闘装備','Long_Line',None),
-]
-MAPS['Lighthouse'] = [
- ('Broadcast - Part 1','Mechanic',3,'中','Hillside〜シャレー周辺の戸建て(目安)','放送スタジオを発見(民家の地下)。ローグ地帯に注意','なし','Broadcast_-_Part_1',(-151,-243)),
-]
-ANYMAP = [
- ('Fall Ailment (20%)','Therapist',2,'中','指定医療品の収集・納品系。目標欄参照','Fall_Ailment'),
- ('Aid Stations (40%)','Therapist',2,'中','医療品の納品系。目標欄参照','Aid_Stations'),
- ('General Wares','Therapist',2,'中','日用品系の納品/脱出タスク。目標欄参照','General_Wares'),
- ('Bad Habit (73%)','Mechanic',2,'中','納品系。残りわずか、目標欄参照','Bad_Habit'),
- ('Rough Tarkov (50%)','Jaeger',2,'低','発見系。目標欄参照','Rough_Tarkov'),
- ('Every Hunter Knows This (50%)','Jaeger',2,'低','発見系。目標欄参照','Every_Hunter_Knows_This'),
- ('Seizing the Initiative','Peacekeeper',2,'低','脱出系。目標欄参照','Seizing_the_Initiative'),
- ('The Tarkov Shooter - Part 1','Jaeger',3,'中','ボルトアクションでスカブを規定数キル(どのマップでも可)','The_Tarkov_Shooter_-_Part_1'),
- ('Polikhim Hobo (4%)','Skier',3,'中','スカブ討伐系。目標欄参照','Polikhim_Hobo'),
- ('Balancing - Part 1 [Season PvP]','Fence',3,'中','シーズンPvPタスク。目標欄参照','Balancing_-_Part_1'),
- ('Capturing Outposts','Prapor',3,'中','拠点エリアでの討伐系。目標欄参照','Capturing_Outposts'),
- ('Power of Persuasion','Prapor',3,'低','討伐系。目標欄参照','Power_of_Persuasion'),
- ('[KORD BREACH] Uninvited Guests - Part 2','Prapor',3,'中','シーズン1タスク。指定地点訪問系','Uninvited_Guests_-_Part_2'),
- ('Hell on Earth - Part 1','Prapor',3,'中','ストーリー系。目標欄参照','Hell_on_Earth_-_Part_1'),
- ('Chumming','Skier',3,'低','脱出系。目標欄参照','Chumming'),
- ('Grenadier','Prapor',4,'中','グレネードで敵を規定数キル。Factoryのスカブ相手が効率的','Grenadier'),
-]
-# Current active tasks, transcribed from the player's task-list screenshots.
-# Keep this override close to the rendering data so rebuilding replaces the
-# previous snapshot instead of mixing old and current tasks.
-MAPS = {k: [] for k in MAPS}
-MAPS['Woods'] = [
- ('Shipping Delay - Part 1','Prapor',3,'中','Woods内(目標欄参照)','ゲーム内目標欄を確認','なし','Shipping_Delay_-_Part_1',(168,-600)),
- ('A Helping Hand','Mechanic',2,'中','Woods内(目標欄参照)','ゲーム内目標欄を確認','なし','A_Helping_Hand',None),
- ('The Huntsman Path - Woods Keeper','Jaeger',5,'高','製材所(Sawmill)','ボスのシュトゥルマンを討伐','対ボス装備','The_Huntsman_Path_-_Woods_Keeper',(10,-3)),
- ('Swift','Jaeger',5,'低','Woods全域','ゲーム内目標欄を確認','なし','Swift',None),
- ('Gratitude','Ragman',3,'高','製材所の湖側','衣類を指定地点に設置','指定衣類','Gratitude',(-45,15)),
-]
-MAPS['StreetsOfTarkov'] = [
- ('Surveillance','Mechanic',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Surveillance',None),
- ('Kings of the Rooftops','Prapor',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Kings_of_the_Rooftops',None),
- ('Revision - Streets of Tarkov','Skier',2,'中','指定された脱出ポイント','ゲーム内目標欄を確認','なし','Revision_-_Streets_of_Tarkov',None),
- ('Secret Message','Skier',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Secret_Message',None),
- ('Road Closed','Skier',2,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Road_Closed',None),
- ('Properties All Around','Prapor',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Properties_All_Around',None),
- ('Ballet Lover','Ragman',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Ballet_Lover',None),
- ('House Arrest','Skier',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','House_Arrest',None),
- ('The Secret Recipe','Skier',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','The_Secret_Recipe',None),
- ('Paramedic','Therapist',3,'中','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Paramedic',None),
- ("You've Got Mail",'Prapor',3,'中','郵便局(Post Office)エリア','ゲーム内目標欄を確認','なし',"You've_Got_Mail",None),
- ('The Huntsman Path - Big Game','Jaeger',5,'高','LERM Expo','ボスのカバンを討伐','対ボス装備','The_Huntsman_Path_-_Big_Game',(239,-60)),
- ('The Secret to Productivity','Mechanic',3,'中','Hive(Malevicha 5)','ゲーム内目標欄を確認','Relaxation room key','The_Secret_to_Productivity',(-212,300)),
- ('Watching You (50%)','Mechanic',3,'中','Pinewoodホテル北棟215号室','進行度50%。ゲーム内目標欄を確認','Pinewood hotel room 215 key','Watching_You',(-35,64)),
- ('Dandies','Ragman',3,'低','Streets内(目標欄参照)','ゲーム内目標欄を確認','なし','Dandies',None),
-]
-MAPS['Shoreline'] = [
- ('Thirsty - Hounds','Jaeger',4,'中','Shoreline全域','ゲーム内目標欄を確認','戦闘装備','Thirsty_-_Hounds',None),
- ('Wet Job - Part 1','Peacekeeper',4,'中','Shoreline全域','ゲーム内目標欄を確認','戦闘装備','Wet_Job_-_Part_1',None),
- ('No Swiping (10%)','Skier',4,'中','密輸業者基地','進行度10%。ゲーム内目標欄を確認','戦闘装備','No_Swiping',(-350,-270)),
-]
-MAPS['Lighthouse'] = [
- ('Broadcast - Part 1','Mechanic',3,'中','Hillside〜シャレー周辺','放送スタジオを発見','なし','Broadcast_-_Part_1',(-151,-243)),
-]
-MAPS['Interchange'] = [
- ('Minibus (25%)','Ragman',2,'中','Interchange内(目標欄参照)','進行度25%。ゲーム内目標欄を確認','なし','Minibus',None),
- ('The Key to Success','Ragman',2,'中','Interchange内(目標欄参照)','ゲーム内目標欄を確認','なし','The_Key_to_Success',None),
- ('Hot Delivery','Ragman',3,'中','Interchange内(目標欄参照)','ゲーム内目標欄を確認','なし','Hot_Delivery',None),
- ('Long Line','Ragman',3,'中','モール内外','ゲーム内目標欄を確認','戦闘装備','Long_Line',None),
-]
-MAPS['Factory'] = [
- ('Scout','Mechanic',2,'中','Factory内(目標欄参照)','ゲーム内目標欄を確認','なし','Scout',None),
- ('Postman Pat - Part 1','Prapor',2,'中','Factory内(目標欄参照)','ゲーム内目標欄を確認','なし','Postman_Pat_-_Part_1',None),
- ('Stirrup','Skier',2,'中','Factory内(目標欄参照)','ゲーム内目標欄を確認','戦闘装備','Stirrup',None),
- ('Sanitary Standards (50%)','Therapist',2,'中','Factory内(目標欄参照)','進行度50%。ゲーム内目標欄を確認','なし','Sanitary_Standards_-_Part_1',None),
- ('Chemical - Part 3','Skier',2,'中','Factory内(目標欄参照)','ゲーム内目標欄を確認','なし','Chemical_-_Part_3',None),
- ('Dragnet','Jaeger',3,'中','地下のTerraGroup倉庫','化学コンテナを回収して生還・納品','なし','Dragnet',(-20.5,23)),
- ('The Good Times - Part 1 (20%)','Prapor',5,'中','Factory全域','進行度20%。ゲーム内目標欄を確認','指定装備','The_Good_Times_-_Part_1',None),
- ('Black Swan','Mechanic',2,'中','地下トンネル','熱交換器をマーク','MS2000マーカー','Black_Swan',(-2,-24.5)),
-]
-MAPS['Reserve'] = []
+# Active tasks: intentionally empty. Add new screenshot-confirmed tasks here.
+MAPS = {
+    'Customs': [],
+    'Woods': [],
+    'Shoreline': [],
+    'Factory': [],
+    'StreetsOfTarkov': [],
+    'GroundZero': [],
+    'Interchange': [],
+    'Lighthouse': [],
+    'Reserve': [],
+}
 ANYMAP = []
-
 EXTRACTS = {
  'Customs': [
   ('ZB-1011','常設(スポーンサイド依存)。西端の地下壕','a',(628,-131)),
@@ -310,22 +181,10 @@ EXTRA_EXNOTE = {
 }
 
 DIFF_COLOR={1:'#4ade80',2:'#a3e635',3:'#facc15',4:'#fb923c',5:'#f87171'}
-SUBSPOTS = {
- ('Customs','The Extortionist'): [((372,-86),'納品カーゴの施錠小屋(Unknown Keyで開錠)')],
- ('Customs','Huntsman Path - Trophy'): [((205,140),'レシャラ湧き: 寮'),((398,25),'レシャラ湧き: 新ガソスタ'),((88,-15),'レシャラ湧き: 工事現場'),((330,-72),'レシャラ湧き: Warehouse 4棟')],
-}
-TASK_PIN_PCT = {
- ('Woods','Shipping Delay - Part 1'):(35.0,23.0),
- ('Woods','The Huntsman Path - Woods Keeper'):(56.0,65.0),
- ('Woods','Gratitude'):(56.0,65.0),
- ('Shoreline','No Swiping (10%)'):(64.4,35.8),
- ('Factory','Dragnet'):(27.0,63.3),
- ('Factory','Black Swan'):(49.0,45.0),
- ('StreetsOfTarkov','The Huntsman Path - Big Game'):(36.6,23.9),
- ('StreetsOfTarkov','The Secret to Productivity'):(88.0,77.0),
- ('StreetsOfTarkov','Watching You (50%)'):(72.0,45.0),
- ('Lighthouse','Broadcast - Part 1'):(56.0,65.0),
-}
+SUBSPOTS = {}
+
+TASK_PIN_PCT = {}
+
 MAP_JA={'Customs':'CUSTOMS','Woods':'WOODS','Shoreline':'SHORELINE','Factory':'FACTORY','StreetsOfTarkov':'STREETS','GroundZero':'GROUND ZERO','Interchange':'INTERCHANGE','Lighthouse':'LIGHTHOUSE','Reserve':'RESERVE'}
 def jp_url(tr,slug): return JP+quote(f"{tr}/{slug.replace('_',' ')}")
 
