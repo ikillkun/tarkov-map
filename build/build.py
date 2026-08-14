@@ -458,10 +458,11 @@ for mkey in MAP_JA:
         for j,(slug,tname,trader,objective,need,kind) in enumerate(FACTORY_TASKS,1):
             tid=f'Factory_t{j}'; task_by_slug[slug]=tid
             task_url=('https://escapefromtarkov.fandom.com/wiki/Sanitary_Standards_-_Part_1' if slug=='sanitary-standards-part-1' else f'https://tarkov.dev/task/{slug}')
+            wiki_url=f'https://escapefromtarkov.fandom.com/wiki/{quote(tname.replace(" ", "_"))}'
             modal_data[tid]={'title':f'TASK: {tname}','sub':f'{trader} / {kind}','place':'Factory',
               'desc':objective,'items':f'<b>必要:</b> {need}','img':IMG+quote_plus(f'Escape from Tarkov {tname} Factory quest'),
               'map':mkey,'wl':task_url,'wt':f'✓ {tname}のデータを確認','pt':'task','pn':'Q'}
-            taskrows.append(f'<div class="exrow taskrow"><span class="exbadge taskbadge">Q</span><b>{tname}</b> <small>{trader}・{kind}</small><br>{objective}<br><small><b>必要:</b> {need}　<a class="il" href="{task_url}" target="_blank" rel="noopener">現行データ</a></small></div>')
+            taskrows.append(f'<div class="exrow taskrow"><span class="exbadge taskbadge">Q</span><b>{tname}</b> <small>{trader}・{kind}</small><br>{objective}<br><small><b>必要:</b> {need}</small><span class="tasklinks"><a class="tasklink" href="{task_url}" target="_blank" rel="noopener">現行条件</a><a class="tasklink wiki" href="{wiki_url}" target="_blank" rel="noopener">WIKI</a></span></div>')
         for slug,mark,x,y in FACTORY_TASK_MARKS:
             tid=task_by_slug[slug]
             building_pins.append(f'<button class="pin taskpin" style="left:{x}%;top:{y}%" data-m="{tid}"><span class="taskdot">Q</span><span class="sllbl tasklbl">{mark}</span></button>')
@@ -690,6 +691,7 @@ nav{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line);po
 .map-wrap.fs.rot{width:100dvh;height:100dvw;inset:auto;top:50%;left:50%;transform:translate(-50%,-50%) rotate(90deg)}
 #fsx{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:49;width:46px;height:46px;border-radius:50%;background:#000d;border:1px solid var(--amber);color:#fff;font-size:20px}
 body.fsmode #fsx{display:block}
+.map-wrap.fs #fsx,.map-wrap:fullscreen #fsx,.building-wrap:fullscreen #fsx{display:block}
 body.fsmode #modal{align-items:flex-start;justify-content:flex-start;padding:10px}
 body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .map-wrap.fs .fsclose{display:none}
@@ -716,6 +718,7 @@ body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .sl-safe .sldot{background:#49d17d}.sl-valuable .sldot{background:#ffd33d}.sl-body .sldot{background:#62a9ff;color:#07111d}
 .flpin{z-index:4}.flpin .sldot{border-radius:50%}
 .taskpin{z-index:6}.taskdot{display:flex;align-items:center;justify-content:center;width:25px;height:25px;border:2px solid #fff;border-radius:6px;background:#a64ee5;color:#fff;font-size:11px;font-weight:900;box-shadow:0 2px 8px #000}.tasklbl{background:#291438e8;border:1px solid #b76cff;color:#f2dfff}.taskrow{border-left-color:#a64ee5}.taskbadge{background:#a64ee5!important;color:#fff!important}
+.tasklinks{display:inline-flex;gap:5px;margin-left:8px;vertical-align:middle}.tasklink{display:inline-flex;align-items:center;padding:2px 7px;border:1px solid #555d68;border-radius:4px;color:#d5dbe4;background:#20242a;text-decoration:none;font-size:9px;font-weight:800}.tasklink.wiki{border-color:#6687b9;color:#c7dcff;background:#182433}.tasklink:hover{border-color:var(--amber);color:#fff}
 .fl-steady .sldot{background:#49d17d}.fl-valuable .sldot{background:#ffd33d}.fl-danger .sldot{background:#ff5b56;color:#fff}
 .flpin[data-m="Interchange_fl12"] .sllbl{left:auto;right:calc(100% - 3px)}
 .sllbl{position:absolute;left:calc(100% - 3px);top:50%;transform:translateY(-50%);font-size:10px;font-weight:800;color:#fff;white-space:nowrap;background:#111d;border-radius:3px;padding:2px 4px;text-shadow:0 1px 2px #000;pointer-events:none}
@@ -771,6 +774,10 @@ css += '''
 
 js='''
 const MD=__MD__;
+const modalHome=document.body;
+function moveFullscreenUiInto(el){const m=document.getElementById("modal"),x=document.getElementById("fsx");if(m&&el&&m.parentElement!==el)el.appendChild(m);if(x&&el&&x.parentElement!==el)el.appendChild(x)}
+function restoreModalHome(){const m=document.getElementById("modal"),x=document.getElementById("fsx");if(m&&m.parentElement!==modalHome)modalHome.appendChild(m);if(x&&x.parentElement!==modalHome)modalHome.appendChild(x)}
+document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement)restoreModalHome()});
 const tabs=[...document.querySelectorAll(".tab")],secs=[...document.querySelectorAll(".mapsec")];
 tabs.forEach(t=>t.addEventListener("click",()=>{tabs.forEach(x=>x.classList.remove("on"));secs.forEach(s=>s.classList.remove("on"));t.classList.add("on");document.getElementById(t.dataset.t).classList.add("on");window.scrollTo({top:0});}));
 tabs[0].click();
@@ -803,7 +810,7 @@ document.querySelectorAll(".mapsec").forEach(sec=>{
    wrap.classList.contains("fs")&&!document.fullscreenElement&&window.innerHeight>window.innerWidth)};
  sec.querySelector(".fsb")?.addEventListener("click",async()=>{
   wrap.classList.add("fs");document.body.style.overflow="hidden";document.body.classList.add("fsmode");
-   window._fsExit=exitFs;
+  moveFullscreenUiInto(wrap);
   try{await wrap.requestFullscreen();}catch(e){}
   try{await screen.orientation.lock("landscape");}catch(e){}
   updRot();apply();
@@ -811,6 +818,7 @@ document.querySelectorAll(".mapsec").forEach(sec=>{
  const exitFs=()=>{wrap.classList.remove("fs","rot");document.body.style.overflow="";document.body.classList.remove("fsmode");
    try{screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
   if(document.fullscreenElement){document.exitFullscreen().catch(()=>{})}
+  restoreModalHome();
   apply();};
  window.addEventListener("resize",()=>{if(wrap.classList.contains("fs")){updRot();apply()}});
  document.addEventListener("fullscreenchange",()=>{if(wrap.classList.contains("fs")){updRot();
@@ -860,7 +868,7 @@ document.querySelectorAll(".building-panel").forEach(panel=>{
  const readable=()=>{bs=1;apply();requestAnimationFrame(()=>{bs=Math.max(1,Math.min(5,wrap.clientHeight*.94/(canvas.offsetHeight||1)));apply();wrap.scrollLeft=Math.max(0,(canvas.offsetWidth-wrap.clientWidth)/2);wrap.scrollTop=0})};
  panel.querySelector(".bzin").onclick=()=>zoom(1.25);panel.querySelector(".bzout").onclick=()=>zoom(1/1.25);
  panel.querySelector(".bfit").onclick=()=>{bs=1;apply();wrap.scrollTo(0,0)};
- panel.querySelector(".bfs").onclick=async()=>{try{await wrap.requestFullscreen()}catch(e){}};
+ panel.querySelector(".bfs").onclick=async()=>{moveFullscreenUiInto(wrap);try{await wrap.requestFullscreen()}catch(e){restoreModalHome()}};
  wrap.addEventListener("wheel",e=>{e.preventDefault();zoom(e.deltaY<0?1.18:1/1.18)},{passive:false});
  wrap.addEventListener("buildingfloorchange",readable);wrap.addEventListener("buildingopen",readable);
  let bd=null;
@@ -916,7 +924,7 @@ document.querySelectorAll(".pin").forEach(p=>p.addEventListener("click",e=>{
 }));
 // fullscreen global UI
 const fsx=document.createElement("button");fsx.id="fsx";fsx.textContent="✕";document.body.appendChild(fsx);
-fsx.onclick=()=>window._fsExit&&window._fsExit();
+fsx.onclick=()=>{document.querySelectorAll(".map-wrap.fs").forEach(w=>w.classList.remove("fs","rot"));document.body.style.overflow="";document.body.classList.remove("fsmode");if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});restoreModalHome()};
 modal.addEventListener("click",e=>{if(e.target===modal)modal.classList.remove("on")});
 document.getElementById("mc").addEventListener("click",()=>modal.classList.remove("on"));
 '''

@@ -1,4 +1,4 @@
-const C = "eftmap-v9";
+const C = "eftmap-v10";
 const ASSETS = ["./","./index.html","./manifest.json","./icon-192.png","./icon-512.png",
 "./map_Customs.svg","./map_Woods.svg","./map_Shoreline.svg","./map_Factory.svg",
 "./map_StreetsOfTarkov.svg","./map_GroundZero.svg","./map_Interchange.svg",
