@@ -344,18 +344,22 @@ modal_data={}  # id -> dict
 sections=[]; tabs=[]
 for mkey in MAP_JA:
     p=make_pct(mkey+'.svg')
-    labelpins=[]
+    labelpins=[]; building_labelpins=[]; building_pins=[]
     for (lx,lz),label,size in cfgs[mkey+'.svg'].get('labels',[]):
         x,y=p(lx,lz)
         floor_attr=''
         floor_hidden=''
         if mkey == 'Interchange':
             floor=next((key for key,names in INTERCHANGE_LABEL_FLOORS.items() if label in names), 'basement')
-            if floor != 'overview':
+            if floor == 'overview':
+                labelpins.append(f'<span class="labelpin" style="left:{x}%;top:{y}%">{label}</span>')
+            else:
                 x,y=interchange_crop_pct(x,y,floor)
-            floor_attr=f' data-floor="{floor}"'
-            floor_hidden='' if floor == 'first' else ' hid'
-        labelpins.append(f'<span class="labelpin{floor_hidden}"{floor_attr} style="left:{x}%;top:{y}%">{label}</span>')
+                floor_attr=f' data-floor="{floor}"'
+                floor_hidden='' if floor == 'first' else ' hid'
+                building_labelpins.append(f'<span class="labelpin{floor_hidden}"{floor_attr} style="left:{x}%;top:{y}%">{label}</span>')
+            continue
+        labelpins.append(f'<span class="labelpin" style="left:{x}%;top:{y}%">{label}</span>')
     scavloot=[]; scavrows=[]; route_svg=''; scav_toggle=''
     if mkey == 'StreetsOfTarkov':
         route_parts=[]
@@ -389,9 +393,7 @@ for mkey in MAP_JA:
             x,y=anchor_pct(p, anchor)
             modal_data[eid]['x']=x; modal_data[eid]['y']=y
             lbl = f'<span class="exlbl{'' if etype=='a' else ' exlblc'}">{ename}</span>'
-            floor_attr=' data-floor="overview"' if mkey == 'Interchange' else ''
-            floor_hidden=' hid' if mkey == 'Interchange' else ''
-            expins.append(f'<button class="pin {'exapin' if etype=='a' else 'excpin'}{floor_hidden}"{floor_attr} style="left:{x}%;top:{y}%" data-m="{eid}"><span class="exdot {cls}">EX</span>{lbl}</button>')
+            expins.append(f'<button class="pin {'exapin' if etype=='a' else 'excpin'}" style="left:{x}%;top:{y}%" data-m="{eid}"><span class="exdot {cls}">EX</span>{lbl}</button>')
         exrows.append(f'<div class="exrow {cls}r"><span class="exbadge {cls}">{tag}</span><b>{ename}</b> — {method}</div>')
     for j,(ename,anchor) in enumerate(SCAV_EX.get(mkey,[]),1):
         anchor=('pct', *SCAV_PIN_PCT[mkey][ename])
@@ -402,8 +404,7 @@ for mkey in MAP_JA:
         if anchor:
             x,y=anchor_pct(p, anchor)
             modal_data[sid]['x']=x; modal_data[sid]['y']=y
-            floor_attr=' data-floor="overview"' if mkey == 'Interchange' else ''
-            expins.append(f'<button class="pin scavpin hid"{floor_attr} style="left:{x}%;top:{y}%" data-m="{sid}"><span class="exdot exs">S</span><span class="exlbl exlbls">{ename}</span></button>')
+            expins.append(f'<button class="pin scavpin hid" style="left:{x}%;top:{y}%" data-m="{sid}"><span class="exdot exs">S</span><span class="exlbl exlbls">{ename}</span></button>')
     lootrows=[]
     if mkey == 'Interchange':
         risk_label={'steady':'安定','valuable':'高額','danger':'激戦'}
@@ -417,7 +418,7 @@ for mkey in MAP_JA:
               'desc':ldesc,'items':linkify(lkey),'img':IMG+q,'map':mkey,
               'wl':'https://www.tarkov.dev/map/interchange','wt':'🗺 tarkov.devのInterchangeマップ',
               'pt':'loot','pn':'$','x':x,'y':y}
-            expins.append(f'<button class="pin lootpin flpin fl-{risk} hid" data-floor="{floor}" style="left:{x}%;top:{y}%" data-m="{lid}"><span class="sldot">$</span><span class="sllbl">{lname}</span></button>')
+            building_pins.append(f'<button class="pin lootpin flpin fl-{risk} hid" data-floor="{floor}" style="left:{x}%;top:{y}%" data-m="{lid}"><span class="sldot">$</span><span class="sllbl">{lname}</span></button>')
             row_hidden='' if floor == 'first' else ' hid'
             lootrows.append(f'<div class="exrow floor-list flrow flrow-{risk}{row_hidden}" data-floor="{floor}"><span class="exbadge flbadge-{risk}">{INTERCHANGE_FLOOR_NAMES[floor]}・{risk_label[risk]}</span><b>{lname}</b> — {ldesc}<br><small>条件: {linkify(lkey)}</small></div>')
     for j,(lname,ldesc,lkey,anchor) in enumerate(LOOT.get(mkey,[]),1):
@@ -432,21 +433,34 @@ for mkey in MAP_JA:
     exnote=EXTRA_EXNOTE.get(mkey,'')
     W,H=dims[mkey]
     map_ratio=f'{W}/{H}'
-    floor_controls=''
     map_image=f'<img loading="lazy" src="map_{mkey}.svg" alt="{mkey}">'
+    building_html=''
+    building_specs={
+      'Customs':('寮内部（2階建て・3階建て）','interior_Customs_Dorms.png','1465/570','Interior source: monK87/EFT-Maps（切り出し・加工）'),
+      'Factory':('Factory館内','map_Factory.svg','130.81831/141.23242','Map source: tarkov.dev SVG Maps'),
+      'Shoreline':('保養所内部（東棟・西棟・管理棟）','interior_Shoreline_Resort.png','1780/1980','Interior source: monK87/EFT-Maps（切り出し・加工）'),
+    }
+    if mkey in building_specs:
+        btitle,bsrc,bratio,bcredit=building_specs[mkey]
+        building_html=f'''<aside class="building-panel">
+<div class="building-head"><div class="building-name"><small>主要建物</small><b>{btitle}</b></div><div class="building-tools"><button class="mbtn bfit">全体</button><button class="mbtn bzout">−</button><button class="mbtn bzin">＋</button><button class="mbtn bfs">⛶</button></div></div>
+<div class="building-wrap"><div class="building-canvas" style="aspect-ratio:{bratio}"><img loading="lazy" src="{bsrc}" alt="{btitle}"></div></div>
+<div class="building-credit"><a href="{'https://github.com/monK87/EFT-Maps' if mkey in ('Customs','Shoreline') else 'https://tarkov.dev/maps'}" target="_blank" rel="noopener">{bcredit}</a></div>
+</aside>'''
     if mkey == 'Interchange':
-        floor_controls='''<div class="grp floor-switch" aria-label="館内階層">
-<span class="floor-caption">表示</span><button class="mbtn floorbtn" data-floor="overview">全体</button><button class="mbtn floorbtn" data-floor="basement">地下</button><button class="mbtn floorbtn on" data-floor="first">1階</button><button class="mbtn floorbtn" data-floor="second">2階</button></div>'''
         first_crop=INTERCHANGE_FLOOR_CROPS['first']; second_crop=INTERCHANGE_FLOOR_CROPS['second']
         basement_crop=INTERCHANGE_FLOOR_CROPS['basement']
-        map_ratio=f'{first_crop[2]}/{first_crop[3]}'
-        map_image=f'<img class="floor-map" loading="lazy" src="map_Interchange_1F.svg?v=2" alt="Interchange 1階" data-src-overview="map_Interchange.svg" data-src-basement="map_Interchange_Basement.svg?v=2" data-src-first="map_Interchange_1F.svg?v=2" data-src-second="map_Interchange_2F.svg?v=2" data-ratio-overview="1127.6852/947.02582" data-ratio-basement="{basement_crop[2]}/{basement_crop[3]}" data-ratio-first="{first_crop[2]}/{first_crop[3]}" data-ratio-second="{second_crop[2]}/{second_crop[3]}">'
-    loot_heading_small='上の階層ボタンで地下・1階・2階を切替。「金策」で現在階の位置表示' if mkey == 'Interchange' else 'マップの「金策」レイヤーで位置表示'
+        floor_controls='''<div class="grp floor-switch" aria-label="館内階層"><span class="floor-caption">階層</span><button class="mbtn floorbtn" data-floor="basement">地下</button><button class="mbtn floorbtn on" data-floor="first">1階</button><button class="mbtn floorbtn" data-floor="second">2階</button></div>'''
+        building_html=f'''<aside class="building-panel">
+<div class="building-head"><div class="building-name"><small>主要建物</small><b>IDEA・OLI・Goshan 館内</b></div>{floor_controls}<div class="building-tools"><button class="mbtn bfit">全体</button><button class="mbtn bzout">−</button><button class="mbtn bzin">＋</button><button class="mbtn bfs">⛶</button></div></div>
+<div class="building-wrap"><div class="building-canvas" style="aspect-ratio:{first_crop[2]}/{first_crop[3]}"><img class="floor-map" loading="lazy" src="map_Interchange_1F.svg?v=2" alt="Interchange 1階" data-src-basement="map_Interchange_Basement.svg?v=2" data-src-first="map_Interchange_1F.svg?v=2" data-src-second="map_Interchange_2F.svg?v=2" data-ratio-basement="{basement_crop[2]}/{basement_crop[3]}" data-ratio-first="{first_crop[2]}/{first_crop[3]}" data-ratio-second="{second_crop[2]}/{second_crop[3]}">{''.join(building_labelpins)}{''.join(building_pins)}</div></div>
+<div class="building-credit"><a href="https://tarkov.dev/maps" target="_blank" rel="noopener">Map source: tarkov.dev SVG Maps</a></div>
+</aside>'''
+    loot_heading_small='右の館内図で地下・1階・2階を切替。「金策」で現在階の位置表示' if mkey == 'Interchange' else 'マップの「金策」レイヤーで位置表示'
     tabs.append(f'<button class="tab" data-t="{mkey}">{MAP_JA[mkey]}</button>')
     sections.append(f'''<section id="{mkey}" class="mapsec">
 <div class="mapbar">
 <div class="grp"><button class="mbtn zout">−</button><button class="mbtn zin">＋</button><button class="mbtn fsb" title="全画面で拡大" aria-label="全画面で拡大">⛶ 全画面</button></div>
-{floor_controls}
 <div class="grp layers">
 <button class="mbtn tgl on" data-g="labelpin"><i class="sw" style="--c:#d4c6a5"></i>地名</button>
 <button class="mbtn tgl on" data-g="exapin"><i class="sw sq" style="--c:#1eae4e"></i>常設EX</button>
@@ -455,7 +469,7 @@ for mkey in MAP_JA:
 <button class="mbtn tgl" data-g="lootpin"><i class="sw" style="--c:#d9a521"></i>金策</button>
 {scav_toggle}
 </div></div>
-<div class="map-wrap"><div class="map" data-map="{mkey}" style="aspect-ratio:{map_ratio}">{map_image}{route_svg}{''.join(labelpins)}{''.join(scavloot)}{''.join(expins)}</div></div>
+<div class="map-layout"><div class="primary-view"><div class="map-wrap"><div class="map" data-map="{mkey}" style="aspect-ratio:{map_ratio}">{map_image}{route_svg}{''.join(labelpins)}{''.join(scavloot)}{''.join(expins)}</div></div></div>{building_html}</div>
 <div class="list"><h3>脱出ポイントと方法 <small>※位置は目安あり。レイド中にOキー2連打で必ず確認</small></h3>
 <p class="note"><a class="il" href="{EN}{WIKI_MAP[mkey]}#Extractions" target="_blank" rel="noopener">🖼 wikiの{mkey} 脱出セクションを開く(全脱出の写真つき一覧)</a></p>{''.join(exrows)}{f'<p class="note">{exnote}</p>' if exnote else ''}
 <h3>金策スポットと必要な鍵 <small>{loot_heading_small}</small></h3>{''.join(lootrows)}
@@ -617,6 +631,17 @@ nav{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line);po
 .floorbtn{height:30px;min-width:48px;justify-content:center;padding:0 10px}
 .floorbtn.on{border-color:#35d6f2;color:#dffbff;background:#17333a;box-shadow:inset 0 0 0 1px #35d6f244}
 .hint{font-size:10.5px;color:#8a8375}
+.map-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(420px,1fr);gap:10px;max-width:1900px;margin:0 auto;align-items:start}
+.primary-view,.building-panel{min-width:0}
+.building-panel{border:1px solid var(--line);border-radius:4px;background:#121519;overflow:hidden}
+.building-head{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;padding:7px;background:#171b20;border-bottom:1px solid var(--line)}
+.building-name{display:flex;flex-direction:column;line-height:1.25}.building-name small{font-size:9px;color:var(--amber);font-weight:800;letter-spacing:.12em}.building-name b{font-size:12px;color:var(--tanb)}
+.building-tools{display:flex;gap:5px}.building-tools .mbtn{height:30px;min-width:36px;padding:0 9px;justify-content:center}
+.building-wrap{position:relative;overflow:auto;height:74vh;background:#0a0c0e;overscroll-behavior:contain}
+.building-canvas{position:relative;width:100%;min-width:100%;transform-origin:0 0}
+.building-canvas img{display:block;width:100%;height:auto}
+.building-wrap:fullscreen{height:100vh;background:#090b0d}.building-wrap:fullscreen .building-canvas{margin:auto}
+.building-credit{padding:4px 8px;font-size:9px;text-align:right;background:#101318}.building-credit a{color:#817a6c;text-decoration:none}
 .map-wrap{position:relative;overflow:hidden;height:74vh;border:1px solid var(--line);border-radius:4px;touch-action:none;overscroll-behavior:contain;cursor:grab;background:#0a0c0e}
 .map-wrap.fs{position:fixed;inset:0;z-index:45;height:100dvh;max-height:none;border:none;border-radius:0}
 .map-wrap.fs.rot{width:100dvh;height:100dvw;inset:auto;top:50%;left:50%;transform:translate(-50%,-50%) rotate(90deg)}
@@ -655,7 +680,8 @@ body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .scavnote{border-left:3px solid #35d6f2!important}
 .flrow-steady{border-left-color:#49d17d}.flrow-valuable{border-left-color:#ffd33d}.flrow-danger{border-left-color:#ff5b56}
 .flbadge-steady{background:#49d17d!important;color:#111!important}.flbadge-valuable{background:#ffd33d!important;color:#111!important}.flbadge-danger{background:#ff5b56!important;color:#fff!important}
-@media(max-width:640px){.exlbl{font-size:9px}}
+@media(max-width:900px){.map-layout{grid-template-columns:1fr}.building-wrap{height:62vh}.building-panel{margin-top:2px}}
+@media(max-width:640px){.exlbl{font-size:9px}.building-head{align-items:flex-start}.floor-switch{order:3;width:100%;overflow-x:auto}.building-tools{margin-left:auto}}
 
 .pin:active .exdot,.pin:hover .exdot{transform:scale(1.35)}
 .list{max-width:1100px;margin:14px auto 26px;padding:0 2px}
@@ -780,9 +806,20 @@ document.querySelectorAll(".mapsec").forEach(sec=>{
  window.addEventListener("mouseup",()=>{mdrag=null;wrap.style.cursor="grab"});
  wrap.addEventListener("wheel",e=>{e.preventDefault();const[x,y]=pos(e);zoomAt(x,y,e.deltaY<0?1.15:1/1.15)},{passive:false});
 });
+document.querySelectorAll(".building-panel").forEach(panel=>{
+ const wrap=panel.querySelector(".building-wrap"),canvas=panel.querySelector(".building-canvas");let bs=1;
+ const apply=()=>canvas.style.width=`${bs*100}%`;
+ const zoom=f=>{const ox=(wrap.scrollLeft+wrap.clientWidth/2)/(canvas.offsetWidth||1),oy=(wrap.scrollTop+wrap.clientHeight/2)/(canvas.offsetHeight||1);bs=Math.max(1,Math.min(5,bs*f));apply();wrap.scrollLeft=ox*canvas.offsetWidth-wrap.clientWidth/2;wrap.scrollTop=oy*canvas.offsetHeight-wrap.clientHeight/2};
+ panel.querySelector(".bzin").onclick=()=>zoom(1.25);panel.querySelector(".bzout").onclick=()=>zoom(1/1.25);
+ panel.querySelector(".bfit").onclick=()=>{bs=1;apply();wrap.scrollTo(0,0)};
+ panel.querySelector(".bfs").onclick=async()=>{try{await wrap.requestFullscreen()}catch(e){}};
+ wrap.addEventListener("wheel",e=>{e.preventDefault();zoom(e.deltaY<0?1.18:1/1.18)},{passive:false});
+ wrap.addEventListener("buildingfloorchange",()=>{bs=1;apply();requestAnimationFrame(()=>{if(panel.querySelector('.floor-map')){bs=Math.max(1,Math.min(5,wrap.clientHeight*.94/(canvas.offsetHeight||1)));apply()}wrap.scrollLeft=Math.max(0,(canvas.offsetWidth-wrap.clientWidth)/2);wrap.scrollTop=0})});
+ apply();
+});
 document.querySelectorAll(".floor-switch").forEach(sw=>{
- const sec=sw.closest(".mapsec"),img=sec.querySelector(".floor-map"),map=sec.querySelector(".map");
- const recenter=()=>sec.querySelector('.map-wrap').dispatchEvent(new Event('floorchange'));
+ const sec=sw.closest(".mapsec"),panel=sw.closest(".building-panel"),img=panel.querySelector(".floor-map"),map=panel.querySelector(".building-canvas"),wrap=panel.querySelector(".building-wrap");
+ const recenter=()=>wrap.dispatchEvent(new Event('buildingfloorchange'));
  img.addEventListener('load',recenter);
  const setFloor=floor=>{
   sec.dataset.floor=floor;
@@ -790,12 +827,12 @@ document.querySelectorAll(".floor-switch").forEach(sw=>{
   img.src=img.dataset["src"+floor[0].toUpperCase()+floor.slice(1)];
   map.style.aspectRatio=img.dataset["ratio"+floor[0].toUpperCase()+floor.slice(1)];
   img.alt=`Interchange ${floor==="overview"?"全体":floor==="basement"?"地下":floor==="first"?"1階":"2階"}`;
-  ['labelpin','lootpin','exapin','excpin','scavpin'].forEach(group=>{
+  ['labelpin','lootpin'].forEach(group=>{
    const groupOn=sec.querySelector(`.tgl[data-g="${group}"]`)?.classList.contains("on");
    sec.querySelectorAll(`.${group}[data-floor]`).forEach(p=>p.classList.toggle("hid",!groupOn||p.dataset.floor!==floor));
   });
   sec.querySelectorAll('.floor-list').forEach(r=>r.classList.toggle("hid",r.dataset.floor!==floor));
-  recenter();setTimeout(recenter,80);setTimeout(recenter,320);
+  recenter();setTimeout(recenter,80);
  };
  sw.querySelectorAll(".floorbtn").forEach(b=>b.addEventListener("click",()=>setFloor(b.dataset.floor)));
  setFloor("first");
