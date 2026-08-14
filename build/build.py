@@ -436,31 +436,33 @@ for mkey in MAP_JA:
     map_image=f'<img loading="lazy" src="map_{mkey}.svg" alt="{mkey}">'
     building_html=''
     building_specs={
-      'Customs':('寮内部（2階建て・3階建て）','interior_Customs_Dorms.png','1465/570','Interior source: monK87/EFT-Maps（切り出し・加工）'),
-      'Factory':('Factory館内','map_Factory.svg','130.81831/141.23242','Map source: tarkov.dev SVG Maps'),
-      'Shoreline':('保養所内部（東棟・西棟・管理棟）','interior_Shoreline_Resort.png','1780/1980','Interior source: monK87/EFT-Maps（切り出し・加工）'),
+      'Customs':('寮内部（2階建て・3階建て）','interior_Customs_Dorms.webp','4000/4561','RE3MR Customs Dorms 2D 1.1B','https://reemr.se/customs/'),
+      'Factory':('Factory館内（地上・中層・上層・地下）','interior_Factory_RE3MR.webp','5000/2476','RE3MR Factory 1.7C','https://reemr.se/Factory/'),
+      'Shoreline':('保養所内部（東棟・西棟・管理棟）','interior_Shoreline_Resort.webp','5000/2813','RE3MR Shoreline Resort 1.0B','https://reemr.se/shoreline/'),
     }
     if mkey in building_specs:
-        btitle,bsrc,bratio,bcredit=building_specs[mkey]
+        btitle,bsrc,bratio,bcredit,burl=building_specs[mkey]
         building_html=f'''<aside class="building-panel">
-<div class="building-head"><div class="building-name"><small>主要建物</small><b>{btitle}</b></div><div class="building-tools"><button class="mbtn bfit">全体</button><button class="mbtn bzout">−</button><button class="mbtn bzin">＋</button><button class="mbtn bfs">⛶</button></div></div>
+<div class="building-head"><div class="building-name"><small>主要建物</small><b>{btitle}</b></div><span class="building-help">ドラッグ移動・ホイール拡大</span><div class="building-tools"><button class="mbtn bfit">全体</button><button class="mbtn bzout">−</button><button class="mbtn bzin">＋</button><button class="mbtn bfs">⛶</button></div></div>
 <div class="building-wrap"><div class="building-canvas" style="aspect-ratio:{bratio}"><img loading="lazy" src="{bsrc}" alt="{btitle}"></div></div>
-<div class="building-credit"><a href="{'https://github.com/monK87/EFT-Maps' if mkey in ('Customs','Shoreline') else 'https://tarkov.dev/maps'}" target="_blank" rel="noopener">{bcredit}</a></div>
+<div class="building-credit"><a href="{burl}" target="_blank" rel="noopener">Map: {bcredit} / CC BY-NC-SA 4.0</a></div>
 </aside>'''
     if mkey == 'Interchange':
         first_crop=INTERCHANGE_FLOOR_CROPS['first']; second_crop=INTERCHANGE_FLOOR_CROPS['second']
         basement_crop=INTERCHANGE_FLOOR_CROPS['basement']
         floor_controls='''<div class="grp floor-switch" aria-label="館内階層"><span class="floor-caption">階層</span><button class="mbtn floorbtn" data-floor="basement">地下</button><button class="mbtn floorbtn on" data-floor="first">1階</button><button class="mbtn floorbtn" data-floor="second">2階</button></div>'''
         building_html=f'''<aside class="building-panel">
-<div class="building-head"><div class="building-name"><small>主要建物</small><b>IDEA・OLI・Goshan 館内</b></div>{floor_controls}<div class="building-tools"><button class="mbtn bfit">全体</button><button class="mbtn bzout">−</button><button class="mbtn bzin">＋</button><button class="mbtn bfs">⛶</button></div></div>
+<div class="building-head"><div class="building-name"><small>主要建物</small><b>IDEA・OLI・Goshan 館内</b></div><span class="building-help">ドラッグ移動・ホイール拡大</span>{floor_controls}<div class="building-tools"><button class="mbtn bfit">全体</button><button class="mbtn bzout">−</button><button class="mbtn bzin">＋</button><button class="mbtn bfs">⛶</button></div></div>
 <div class="building-wrap"><div class="building-canvas" style="aspect-ratio:{first_crop[2]}/{first_crop[3]}"><img class="floor-map" loading="lazy" src="map_Interchange_1F.svg?v=2" alt="Interchange 1階" data-src-basement="map_Interchange_Basement.svg?v=2" data-src-first="map_Interchange_1F.svg?v=2" data-src-second="map_Interchange_2F.svg?v=2" data-ratio-basement="{basement_crop[2]}/{basement_crop[3]}" data-ratio-first="{first_crop[2]}/{first_crop[3]}" data-ratio-second="{second_crop[2]}/{second_crop[3]}">{''.join(building_labelpins)}{''.join(building_pins)}</div></div>
 <div class="building-credit"><a href="https://tarkov.dev/maps" target="_blank" rel="noopener">Map source: tarkov.dev SVG Maps</a></div>
 </aside>'''
+    building_toggle='<button class="mbtn building-toggle" aria-expanded="false">▣ 館内マップ</button>' if building_html else ''
     loot_heading_small='右の館内図で地下・1階・2階を切替。「金策」で現在階の位置表示' if mkey == 'Interchange' else 'マップの「金策」レイヤーで位置表示'
     tabs.append(f'<button class="tab" data-t="{mkey}">{MAP_JA[mkey]}</button>')
     sections.append(f'''<section id="{mkey}" class="mapsec">
 <div class="mapbar">
 <div class="grp"><button class="mbtn zout">−</button><button class="mbtn zin">＋</button><button class="mbtn fsb" title="全画面で拡大" aria-label="全画面で拡大">⛶ 全画面</button></div>
+{building_toggle}
 <div class="grp layers">
 <button class="mbtn tgl on" data-g="labelpin"><i class="sw" style="--c:#d4c6a5"></i>地名</button>
 <button class="mbtn tgl on" data-g="exapin"><i class="sw sq" style="--c:#1eae4e"></i>常設EX</button>
@@ -631,15 +633,18 @@ nav{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line);po
 .floorbtn{height:30px;min-width:48px;justify-content:center;padding:0 10px}
 .floorbtn.on{border-color:#35d6f2;color:#dffbff;background:#17333a;box-shadow:inset 0 0 0 1px #35d6f244}
 .hint{font-size:10.5px;color:#8a8375}
-.map-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(420px,1fr);gap:10px;max-width:1900px;margin:0 auto;align-items:start}
+.map-layout{display:grid;grid-template-columns:1fr;gap:10px;max-width:1900px;margin:0 auto;align-items:start}
+.map-layout.building-open{grid-template-columns:minmax(0,1.4fr) minmax(420px,1fr)}
 .primary-view,.building-panel{min-width:0}
-.building-panel{border:1px solid var(--line);border-radius:4px;background:#121519;overflow:hidden}
+.building-panel{display:none;border:1px solid var(--line);border-radius:4px;background:#121519;overflow:hidden}.map-layout.building-open .building-panel{display:block}
+.building-toggle.on{border-color:#35d6f2;color:#dffbff;background:#17333a}
 .building-head{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;padding:7px;background:#171b20;border-bottom:1px solid var(--line)}
 .building-name{display:flex;flex-direction:column;line-height:1.25}.building-name small{font-size:9px;color:var(--amber);font-weight:800;letter-spacing:.12em}.building-name b{font-size:12px;color:var(--tanb)}
+.building-help{font-size:9px;color:#777f89;white-space:nowrap}
 .building-tools{display:flex;gap:5px}.building-tools .mbtn{height:30px;min-width:36px;padding:0 9px;justify-content:center}
-.building-wrap{position:relative;overflow:auto;height:74vh;background:#0a0c0e;overscroll-behavior:contain}
+.building-wrap{position:relative;overflow:auto;height:74vh;background:#0a0c0e;overscroll-behavior:contain;cursor:grab}
 .building-canvas{position:relative;width:100%;min-width:100%;transform-origin:0 0}
-.building-canvas img{display:block;width:100%;height:auto}
+.building-canvas img{display:block;width:100%;height:auto;pointer-events:none;user-select:none;-webkit-user-drag:none}
 .building-wrap:fullscreen{height:100vh;background:#090b0d}.building-wrap:fullscreen .building-canvas{margin:auto}
 .building-credit{padding:4px 8px;font-size:9px;text-align:right;background:#101318}.building-credit a{color:#817a6c;text-decoration:none}
 .map-wrap{position:relative;overflow:hidden;height:74vh;border:1px solid var(--line);border-radius:4px;touch-action:none;overscroll-behavior:contain;cursor:grab;background:#0a0c0e}
@@ -653,7 +658,7 @@ body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .fsclose{display:none;position:fixed;top:12px;right:12px;z-index:46;width:44px;height:44px;border-radius:50%;background:#000c;border:1px solid var(--amber);color:#fff;font-size:20px}
 .map-wrap.fs .fsclose{display:block}
 .map{position:absolute;left:0;top:0;width:100%;transform-origin:0 0;will-change:transform}
-.map img{display:block;width:100%;height:auto}
+.map img{display:block;width:100%;height:auto;pointer-events:none;user-select:none;-webkit-user-drag:none}
 .pin{position:absolute;transform:translate(-50%,-50%);background:none;border:none;padding:6px;cursor:pointer;z-index:2}
 .exdot{display:flex;align-items:center;justify-content:center;width:22px;height:22px;color:#fff;font-weight:800;font-size:10px;border:2px solid #fff;border-radius:3px;box-shadow:0 2px 6px rgba(0,0,0,.6)}
 .exa{background:#1eae4e}.exc{background:#e8a33d;color:#111}
@@ -680,7 +685,7 @@ body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .scavnote{border-left:3px solid #35d6f2!important}
 .flrow-steady{border-left-color:#49d17d}.flrow-valuable{border-left-color:#ffd33d}.flrow-danger{border-left-color:#ff5b56}
 .flbadge-steady{background:#49d17d!important;color:#111!important}.flbadge-valuable{background:#ffd33d!important;color:#111!important}.flbadge-danger{background:#ff5b56!important;color:#fff!important}
-@media(max-width:900px){.map-layout{grid-template-columns:1fr}.building-wrap{height:62vh}.building-panel{margin-top:2px}}
+@media(max-width:900px){.map-layout.building-open{grid-template-columns:1fr}.building-wrap{height:62vh}.building-panel{margin-top:2px}}
 @media(max-width:640px){.exlbl{font-size:9px}.building-head{align-items:flex-start}.floor-switch{order:3;width:100%;overflow-x:auto}.building-tools{margin-left:auto}}
 
 .pin:active .exdot,.pin:hover .exdot{transform:scale(1.35)}
@@ -752,6 +757,7 @@ document.querySelectorAll(".mapsec").forEach(sec=>{
  wrap.addEventListener("floorchange",()=>requestAnimationFrame(()=>{
   s=1;tx=0;const H=wrap.clientHeight,mhh=map.offsetHeight;ty=(H-mhh)/2;apply();
  }));
+ wrap.addEventListener("layoutchange",()=>requestAnimationFrame(()=>{s=1;tx=0;const H=wrap.clientHeight,mhh=map.offsetHeight;ty=(H-mhh)/2;apply()}));
  sec.querySelector(".zin")?.addEventListener("click",()=>zoomAt(wrap.clientWidth/2,wrap.clientHeight/2,1.35));
  sec.querySelector(".zout")?.addEventListener("click",()=>zoomAt(wrap.clientWidth/2,wrap.clientHeight/2,1/1.35));
  const updRot=()=>{wrap.classList.toggle("rot",
@@ -800,23 +806,33 @@ document.querySelectorAll(".mapsec").forEach(sec=>{
   if(e.touches.length===1){const[x,y]=tpos(e.touches[0]);pan={x,y,tx,ty}}
   if(e.touches.length===0)pan=null});
  let mdrag=null;
- wrap.addEventListener("mousedown",e=>{if(e.target.closest(".pin")||e.target.closest(".fsclose"))return;
-  const[x,y]=pos(e);mdrag={x,y,tx,ty};wrap.style.cursor="grabbing"});
- window.addEventListener("mousemove",e=>{if(mdrag){const[x,y]=pos(e);tx=mdrag.tx+(x-mdrag.x);ty=mdrag.ty+(y-mdrag.y);apply()}});
- window.addEventListener("mouseup",()=>{mdrag=null;wrap.style.cursor="grab"});
+ wrap.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse"||e.button!==0||e.target.closest(".pin")||e.target.closest(".fsclose"))return;
+  const[x,y]=pos(e);mdrag={id:e.pointerId,x,y,tx,ty};wrap.setPointerCapture(e.pointerId);wrap.style.cursor="grabbing";e.preventDefault()});
+ wrap.addEventListener("pointermove",e=>{if(!mdrag||e.pointerId!==mdrag.id)return;const[x,y]=pos(e);tx=mdrag.tx+(x-mdrag.x);ty=mdrag.ty+(y-mdrag.y);apply()});
+ const endDrag=e=>{if(mdrag&&(!e||e.pointerId===mdrag.id)){mdrag=null;wrap.style.cursor="grab"}};
+ wrap.addEventListener("pointerup",endDrag);wrap.addEventListener("pointercancel",endDrag);wrap.addEventListener("lostpointercapture",endDrag);
+ wrap.addEventListener("dragstart",e=>e.preventDefault());
  wrap.addEventListener("wheel",e=>{e.preventDefault();const[x,y]=pos(e);zoomAt(x,y,e.deltaY<0?1.15:1/1.15)},{passive:false});
 });
 document.querySelectorAll(".building-panel").forEach(panel=>{
  const wrap=panel.querySelector(".building-wrap"),canvas=panel.querySelector(".building-canvas");let bs=1;
  const apply=()=>canvas.style.width=`${bs*100}%`;
  const zoom=f=>{const ox=(wrap.scrollLeft+wrap.clientWidth/2)/(canvas.offsetWidth||1),oy=(wrap.scrollTop+wrap.clientHeight/2)/(canvas.offsetHeight||1);bs=Math.max(1,Math.min(5,bs*f));apply();wrap.scrollLeft=ox*canvas.offsetWidth-wrap.clientWidth/2;wrap.scrollTop=oy*canvas.offsetHeight-wrap.clientHeight/2};
+ const readable=()=>{bs=1;apply();requestAnimationFrame(()=>{bs=Math.max(1,Math.min(5,wrap.clientHeight*.94/(canvas.offsetHeight||1)));apply();wrap.scrollLeft=Math.max(0,(canvas.offsetWidth-wrap.clientWidth)/2);wrap.scrollTop=0})};
  panel.querySelector(".bzin").onclick=()=>zoom(1.25);panel.querySelector(".bzout").onclick=()=>zoom(1/1.25);
  panel.querySelector(".bfit").onclick=()=>{bs=1;apply();wrap.scrollTo(0,0)};
  panel.querySelector(".bfs").onclick=async()=>{try{await wrap.requestFullscreen()}catch(e){}};
  wrap.addEventListener("wheel",e=>{e.preventDefault();zoom(e.deltaY<0?1.18:1/1.18)},{passive:false});
- wrap.addEventListener("buildingfloorchange",()=>{bs=1;apply();requestAnimationFrame(()=>{if(panel.querySelector('.floor-map')){bs=Math.max(1,Math.min(5,wrap.clientHeight*.94/(canvas.offsetHeight||1)));apply()}wrap.scrollLeft=Math.max(0,(canvas.offsetWidth-wrap.clientWidth)/2);wrap.scrollTop=0})});
+ wrap.addEventListener("buildingfloorchange",readable);wrap.addEventListener("buildingopen",readable);
+ let bd=null;
+ wrap.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse"||e.button!==0||e.target.closest("button"))return;bd={id:e.pointerId,x:e.clientX,y:e.clientY,left:wrap.scrollLeft,top:wrap.scrollTop};wrap.setPointerCapture(e.pointerId);wrap.style.cursor="grabbing";e.preventDefault()});
+ wrap.addEventListener("pointermove",e=>{if(!bd||e.pointerId!==bd.id)return;wrap.scrollLeft=bd.left-(e.clientX-bd.x);wrap.scrollTop=bd.top-(e.clientY-bd.y)});
+ const bend=e=>{if(bd&&(!e||e.pointerId===bd.id)){bd=null;wrap.style.cursor="grab"}};wrap.addEventListener("pointerup",bend);wrap.addEventListener("pointercancel",bend);wrap.addEventListener("lostpointercapture",bend);wrap.addEventListener("dragstart",e=>e.preventDefault());
  apply();
 });
+document.querySelectorAll(".building-toggle").forEach(btn=>btn.addEventListener("click",()=>{
+ const sec=btn.closest(".mapsec"),layout=sec.querySelector(".map-layout"),open=layout.classList.toggle("building-open");btn.classList.toggle("on",open);btn.setAttribute("aria-expanded",open);requestAnimationFrame(()=>{sec.querySelector(".map-wrap")?.dispatchEvent(new Event("layoutchange"));if(open)sec.querySelector(".building-wrap")?.dispatchEvent(new Event("buildingopen"))});
+}));
 document.querySelectorAll(".floor-switch").forEach(sw=>{
  const sec=sw.closest(".mapsec"),panel=sw.closest(".building-panel"),img=panel.querySelector(".floor-map"),map=panel.querySelector(".building-canvas"),wrap=panel.querySelector(".building-wrap");
  const recenter=()=>wrap.dispatchEvent(new Event('buildingfloorchange'));
