@@ -3,7 +3,8 @@ import json, os
 from urllib.parse import quote, quote_plus
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-cfgs = json.load(open(os.path.join(HERE,'map_configs.json')))
+with open(os.path.join(HERE, 'map_configs.json'), encoding='utf-8') as cfg_file:
+    cfgs = json.load(cfg_file)
 dims = {"Woods":[1600,1543],"Shoreline":[1600,1059],"Factory":[1600,1727],
  "GroundZero":[1600,2240],"Lighthouse":[1600,2602],"Interchange":[1600,1344],
  "StreetsOfTarkov":[1600,2198],"Customs":[2400,1209]}
@@ -823,5 +824,6 @@ html=f'''<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="
 <script>const __MDPH__=0;</script>
 <script>{js.replace("__MD__", md_json).replace("__TD__", md_td)}</script>
 </body></html>'''
-open(os.path.join(ROOT,'index.html'),'w').write(html)
+with open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8') as output_file:
+    output_file.write(html)
 print('built index.html', len(html)//1024, 'KB', BUILD_VER)
