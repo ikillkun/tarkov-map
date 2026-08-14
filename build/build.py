@@ -162,6 +162,29 @@ LOOT = {
  'Lighthouse': [('浄水場','高級ルート(ローグ注意)','鍵不要エリア多め',(-65,-600)),('Cottages','金庫・レア','要: コテージ各キー',(-162,-225)),('Train Yard','工業・武器','鍵不要',(-30,-882)),('VPX候補: Southern Villa / Hillside / 浄水場','VPX・Virtex・COFDM系の軍用電子品スポーン','一部キー部屋あり',(-151,-243))],
  'Reserve': [('White Kingサーバー','VPXなど軍用電子品のルーズルート','鍵不要',(-49.5,15.5)),('D-2サーバー室','VPX・COFDM・Virtex候補','電源投入・待ち伏せ注意',('pct',69.3,81.7)),('RB-PKPTS','VPXの有力候補。鍵部屋','RB-PKPTS key',('pct',70.0,30.0))],
 }
+
+# Streets scav money-run overlay. Coordinates are percentages on the
+# tarkov.dev Streets SVG and intentionally use broad landmark centers.
+STREETS_SCAV_SPOTS = [
+ ('safe','Expo / LERM裏','工具箱・ダッフル・棚を短時間で確認。北西端で退路を作りやすい','鍵不要',('pct',18.0,24.0)),
+ ('valuable','Cardinal Apartments','室内の貴重品湧き、引き出し、ジャケット。窓際を長く横切らない','鍵不要',('pct',36.5,27.0)),
+ ('body','Cardinal北の死体','道路側のスカブ死体候補。周囲を確認してから漁る','鍵不要',('pct',39.5,20.0)),
+ ('safe','Beluga裏～北モール','食料・工具・バッグを拾い、表通りを避けて建物沿いに移動','鍵不要',('pct',62.0,30.0)),
+ ('valuable','Pinewood / Basement周辺','引き出し・バッグ・ルーズ品が密集。ホテル内の足音に注意','一部部屋は鍵',('pct',60.0,43.5)),
+ ('body','Pinewood南の路上死体','道路脇の死体候補。開けた交差点なので短時間で確認','鍵不要',('pct',58.0,50.0)),
+ ('safe','Post Office裏','引き出し・バッグ・日用品。建物内をつないで南へ抜けやすい','鍵不要',('pct',46.5,47.5)),
+ ('safe','Construction / Collapsed Crane','工具箱・技術箱・建築資材。外周側から入って外周へ戻る','鍵不要',('pct',16.0,70.0)),
+ ('body','Concordia西の死体','壁際の死体候補。中央道路から射線が通るので先に音を確認','鍵不要',('pct',25.0,76.0)),
+ ('valuable','Concordia / Sparja','地下・店舗の工具、バッグ、食料、ルーズ品。部屋を欲張りすぎない','一部部屋は鍵',('pct',31.0,77.0)),
+ ('safe','Family Market裏','食料・飲料・ジャケット。南東側の脱出へ寄せやすい','鍵不要',('pct',86.5,72.0)),
+ ('valuable','Cinema裏～Ventilation','バッグ・工具・ルーズ品。Ventilation Shaft方面へ離脱しやすい','鍵不要',('pct',79.0,85.0)),
+]
+
+STREETS_SCAV_ROUTES = [
+ ('北コース','#ff6a2a',[(18,24),(36.5,27),(47,31),(62,30),(60,43.5),(46.5,47.5)]),
+ ('南コース','#31c9e8',[(2.5,84),(16,70),(25,76),(31,77),(48,82),(68,88),(79,85),(86.5,72)]),
+]
+
 EXTRA_EXNOTE = {
  'StreetsOfTarkov':'Streetsは脱出が多く位置の個体差も大きい。上記は代表例+目安。必ずOキー2連打で自分のリストを確認。',
  'Interchange':'他にRailway・Emercom Checkpoint・Saferoom(条件)などあり。位置はOキー2連打で確認。',
@@ -262,6 +285,26 @@ for mkey in MAP_JA:
     for (lx,lz),label,size in cfgs[mkey+'.svg'].get('labels',[]):
         x,y=p(lx,lz)
         labelpins.append(f'<span class="labelpin" style="left:{x}%;top:{y}%">{label}</span>')
+    scavloot=[]; scavrows=[]; route_svg=''; scav_toggle=''
+    if mkey == 'StreetsOfTarkov':
+        route_parts=[]
+        for route_name,color,points in STREETS_SCAV_ROUTES:
+            pts=' '.join(f'{x},{y}' for x,y in points)
+            route_parts.append(f'<polyline points="{pts}" style="--route:{color}"/>')
+            scavloot.append(f'<span class="scavloot slroute-label hid" style="left:{points[2][0]}%;top:{points[2][1]-3}%;--route:{color}">{route_name}</span>')
+        route_svg=f'<svg class="scavloot scavroute hid" viewBox="0 0 100 100" preserveAspectRatio="none">{"".join(route_parts)}</svg>'
+        kind_label={'safe':'比較的安全','valuable':'高額候補','body':'死体候補'}
+        kind_mark={'safe':'安','valuable':'★','body':'骸'}
+        for j,(kind,name,desc,key,anchor) in enumerate(STREETS_SCAV_SPOTS,1):
+            sid=f'{mkey}_sl{j}'
+            x,y=anchor_pct(p,anchor)
+            q=quote_plus(f'Escape from Tarkov Streets of Tarkov {name} loot')
+            modal_data[sid]={'title':f'SCAV金策: {name}','sub':kind_label[kind],'place':'StreetsOfTarkov','desc':desc,
+              'items':key,'img':IMG+q,'map':mkey,'wl':'https://www.tarkov.dev/map/streets-of-tarkov',
+              'wt':'🗺 tarkov.devのStreetsマップ','pt':'scavloot','pn':kind_mark[kind],'x':x,'y':y}
+            scavloot.append(f'<button class="pin scavloot slpin sl-{kind} hid" style="left:{x}%;top:{y}%" data-m="{sid}"><span class="sldot">{kind_mark[kind]}</span><span class="sllbl">{name}</span></button>')
+            scavrows.append(f'<div class="exrow slrow slrow-{kind}"><span class="exbadge slbadge-{kind}">{kind_label[kind]}</span><b>{name}</b> — {desc}<br><small>{key}</small></div>')
+        scav_toggle='<button class="mbtn tgl" data-g="scavloot"><i class="sw" style="--c:#35d6f2"></i>SCAV金策</button>'
     expins=[]; exrows=[]
     for j,(ename,method,etype,anchor) in enumerate(EXTRACTS.get(mkey,[]),1):
         anchor=('pct', *EXTRACT_PIN_PCT[mkey][ename])
@@ -309,11 +352,13 @@ for mkey in MAP_JA:
 <button class="mbtn tgl on" data-g="excpin"><i class="sw sq" style="--c:#e8a33d"></i>条件EX</button>
 <button class="mbtn tgl" data-g="scavpin"><i class="sw" style="--c:#2f86d6"></i>SCAV</button>
 <button class="mbtn tgl" data-g="lootpin"><i class="sw" style="--c:#d9a521"></i>金策</button>
+{scav_toggle}
 </div></div>
-<div class="map-wrap"><div class="map" data-map="{mkey}" style="aspect-ratio:{W}/{H}"><img loading="lazy" src="map_{mkey}.svg" alt="{mkey}">{''.join(labelpins)}{''.join(expins)}</div></div>
+<div class="map-wrap"><div class="map" data-map="{mkey}" style="aspect-ratio:{W}/{H}"><img loading="lazy" src="map_{mkey}.svg" alt="{mkey}">{route_svg}{''.join(labelpins)}{''.join(scavloot)}{''.join(expins)}</div></div>
 <div class="list"><h3>脱出ポイントと方法 <small>※位置は目安あり。レイド中にOキー2連打で必ず確認</small></h3>
 <p class="note"><a class="il" href="{EN}{WIKI_MAP[mkey]}#Extractions" target="_blank" rel="noopener">🖼 wikiの{mkey} 脱出セクションを開く(全脱出の写真つき一覧)</a></p>{''.join(exrows)}{f'<p class="note">{exnote}</p>' if exnote else ''}
-<h3>金策スポットと必要な鍵 <small>マップの「金策」レイヤーで位置表示</small></h3>{''.join(lootrows)}</div></section>''')
+<h3>金策スポットと必要な鍵 <small>マップの「金策」レイヤーで位置表示</small></h3>{''.join(lootrows)}
+{f'<h3>SCAV向け安全寄り金策 <small>「SCAV金策」で北・南コースを表示</small></h3><p class="note scavnote">安全は保証できません。残り時間・銃声・自分の脱出口を優先し、Lexos正面と大通りは避けて建物の裏をつないでください。</p>{"".join(scavrows)}' if scavrows else ''}</div></section>''')
 
 GUN = lambda slug,name: f'<a class="il" href="{EN}{quote(slug)}" target="_blank" rel="noopener">{name}</a>'
 weapons_html = f"""<section id="weapons" class="mapsec"><div class="list">
@@ -490,6 +535,16 @@ body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .exlblc{color:#ffc46b}
 .exlbls{color:#8ec9ff}
 .labelpin{position:absolute;transform:translate(-50%,-50%) scale(calc(1/var(--s,1)));transform-origin:center;color:#f1e7c9;background:#101215c9;border:1px solid #706852;border-radius:3px;padding:2px 5px;font-size:9px;font-weight:700;line-height:1;white-space:nowrap;text-shadow:0 1px 2px #000;pointer-events:none;z-index:1}
+.scavroute{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:visible}
+.scavroute polyline{fill:none;stroke:var(--route);stroke-width:.75;stroke-dasharray:2.2 1.3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 .7px #000)}
+.slroute-label{position:absolute;transform:translate(-50%,-50%) scale(calc(1/var(--s,1)));transform-origin:center;border:2px solid var(--route);background:#111e;color:#fff;border-radius:4px;padding:3px 7px;font-size:11px;font-weight:900;white-space:nowrap;text-shadow:0 1px 2px #000;pointer-events:none;z-index:3}
+.slpin{z-index:4}
+.sldot{display:flex;align-items:center;justify-content:center;width:25px;height:25px;border:2px solid #fff;border-radius:5px;color:#111;font-size:11px;font-weight:900;box-shadow:0 2px 7px #000}
+.sl-safe .sldot{background:#49d17d}.sl-valuable .sldot{background:#ffd33d}.sl-body .sldot{background:#62a9ff;color:#07111d}
+.sllbl{position:absolute;left:calc(100% - 3px);top:50%;transform:translateY(-50%);font-size:10px;font-weight:800;color:#fff;white-space:nowrap;background:#111d;border-radius:3px;padding:2px 4px;text-shadow:0 1px 2px #000;pointer-events:none}
+.slrow-safe{border-left-color:#49d17d}.slrow-valuable{border-left-color:#ffd33d}.slrow-body{border-left-color:#62a9ff}
+.slbadge-safe{background:#49d17d!important;color:#111!important}.slbadge-valuable{background:#ffd33d!important;color:#111!important}.slbadge-body{background:#62a9ff!important;color:#07111d!important}
+.scavnote{border-left:3px solid #35d6f2!important}
 @media(max-width:640px){.exlbl{font-size:9px}}
 
 .pin:active .exdot,.pin:hover .exdot{transform:scale(1.35)}
