@@ -1,8 +1,8 @@
-const C = "eftmap-v3";
+const C = "eftmap-v4";
 const ASSETS = ["./","./index.html","./manifest.json","./icon-192.png","./icon-512.png",
-"./map_Customs.jpg","./map_Woods.jpg","./map_Shoreline.jpg","./map_Factory.jpg",
-"./map_StreetsOfTarkov.jpg","./map_GroundZero.jpg","./map_Interchange.jpg","./map_Lighthouse.jpg",
-"./map_Reserve.jpg"];
+"./map_Customs.svg","./map_Woods.svg","./map_Shoreline.svg","./map_Factory.svg",
+"./map_StreetsOfTarkov.svg","./map_GroundZero.svg","./map_Interchange.svg","./map_Lighthouse.svg",
+"./map_Reserve.svg"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(C).then(c => c.addAll(ASSETS)));

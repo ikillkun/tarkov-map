@@ -1,5 +1,5 @@
 {
- "name": "Tarkov Task Map",
+ "name": "Tarkov Extract Map",
  "short_name": "EFT Map",
  "start_url": "./index.html",
  "display": "standalone",

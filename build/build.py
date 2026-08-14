@@ -5,10 +5,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 with open(os.path.join(HERE, 'map_configs.json'), encoding='utf-8') as cfg_file:
     cfgs = json.load(cfg_file)
-dims = {"Woods":[1280,1252],"Shoreline":[1280,876],"Factory":[1280,905],
- "GroundZero":[1600,2240],"Lighthouse":[1600,2602],"Interchange":[1600,1344],
- "StreetsOfTarkov":[1280,986],"Customs":[2400,1209],"Reserve":[4701,2785],
- "Lighthouse":[732,1280],"Interchange":[909,859]}
+dims = {
+ "Customs":[1062.4827,535.17401], "Woods":[1472.7926,1420.5995],
+ "Shoreline":[1559.5717,1032.4935], "Factory":[130.81831,141.23242],
+ "StreetsOfTarkov":[605.32395,831.57753], "GroundZero":[348.92543,488.44792],
+ "Interchange":[1127.6852,947.02582], "Lighthouse":[1059.3752,1722.9499],
+ "Reserve":[827.28742,761.16437],
+}
 import datetime
 BUILD_VER = datetime.date.today().strftime('v%Y.%m.%d')
 JP='https://wikiwiki.jp/eft/'; EN='https://escapefromtarkov.fandom.com/wiki/'
@@ -48,19 +51,6 @@ def linkify(items):
             out = out.replace(k, f'<a class="il" href="{EN}{quote(ITEM_LINKS[k])}" target="_blank" rel="noopener">{k}</a>')
     return out
 
-# Active tasks: intentionally empty. Add new screenshot-confirmed tasks here.
-MAPS = {
-    'Customs': [],
-    'Woods': [],
-    'Shoreline': [],
-    'Factory': [],
-    'StreetsOfTarkov': [],
-    'GroundZero': [],
-    'Interchange': [],
-    'Lighthouse': [],
-    'Reserve': [],
-}
-ANYMAP = []
 EXTRACTS = {
  'Customs': [
   ('ZB-1011','常設(スポーンサイド依存)。西端の地下壕','a',(628,-131)),
@@ -113,7 +103,7 @@ EXTRACTS = {
   ('Damaged House','常設。東側','a',('pct',74.8,71.5)),
   ('Collapsed Crane','常設。西の工事現場','a',('pct',32.8,63.6)),
   ('Crash Site','常設。南西','a',('pct',30.4,77.6)),
-  ('Klimov Street','条件: 緑フレアで開通(Cease Fire!と同時)。通りの東端','c',('pct',74.7,40.2)),
+  ('Klimov Street','条件: 緑フレアを指定エリアで真上へ発射。通りの東端','c',('pct',74.7,40.2)),
   ("Smuggler's Basement",'条件: 合言葉アイテム(Onyx)必要','c',('pct',45.1,37.3)),
   ('Pinewood Basement','条件: PMCとScavの協力','c',('pct',61.0,39.5)),
   ('Primorsky Ave Taxi V-EX','条件: 車両脱出 5,000RUB。南端','c',('pct',54.9,84.9)),
@@ -163,14 +153,14 @@ SCAV_EX = {
 SCAV_EX['Factory'] = [('Camera Bunker Door',('pct',27.0,63.3))]
 LOOT = {
  'Customs': [('寮(マークドルーム/金庫)','鍵部屋と金庫。PvP多め','任意: Dorm room 314 marked key(高額)/203・214等の寮キー',(205,150)),('Big Red事務所','PC・インテリ書類・重役室','Tarcone Director\'s officeキー(奥はドア破壊可)',(-215,-119)),('新ガソスタ','レジ・医療・キー湧き','鍵不要',(404,31)),('旧ガソスタ2F','USECスタッシュ・武器','鍵不要',(331,-173)),('Fortress','武器箱多数+スカブ湧き','鍵不要',(201,-127))],
- 'Woods': [('製材所','木箱多数+シュトゥルマンのレアキー','鍵不要',('pct',56.0,65.0)),('USEC Camp','武器・ミリタリー系','鍵不要',('pct',30.0,38.0)),('Convoy','車列・ミリタリールート','鍵不要',('pct',35.0,23.0)),('Scav House周辺','ジャケット・雑貨','鍵不要',('pct',18.2,83.1))],
- 'Shoreline': [('リゾート東西棟','鍵部屋にLEDX等の医療レア','要: 各部屋キー(216/226/321など。西321・東226が定番)',('pct',48.0,39.0)),('Village','ツールボックス・工業系','鍵不要',('pct',8.0,61.0)),('Gas Station','レジ・医療','鍵不要(事務所は鍵)',('pct',50.0,84.0)),('Scav Island','武器箱・スタッシュ','鍵不要',('pct',20.0,83.0))],
- 'Factory': [('オフィス','金庫・ファイルキャビネット','一部Factory系キー(メインは鍵不要)',('pct',64.5,53.1)),('Rafters(3F通路)','武器箱','鍵不要',('pct',27.0,48.0)),('Med Tent','医療系','鍵不要',('pct',50.0,45.0))],
- 'StreetsOfTarkov': [('Kilmovモール','店舗ルート広範囲','鍵不要',('pct',68.5,33.0)),('LERM Expo','カバンのレアドロップ+車部品','鍵不要',('pct',36.6,23.9)),('Lexos','車部品・工業','一部部屋キーあり',('pct',56.0,86.0)),('Cinema','雑貨・金策','鍵不要',('pct',82.0,90.0)),('Pinewoodホテル','鍵部屋多数','要: Pinewood各部屋キー(215など)',('pct',72.0,45.0))],
+ 'Woods': [('製材所','木箱多数+シュトゥルマンのレアキー','鍵不要',(10,-3)),('USEC Camp','武器・ミリタリー系','鍵不要',(290,-475)),('Convoy','車列・ミリタリールート','鍵不要',(200,-606)),('Scav House周辺','ジャケット・雑貨','鍵不要',(413.7,242.2))],
+ 'Shoreline': [('リゾート東西棟','鍵部屋にLEDX等の医療レア','要: 各部屋キー(216/226/321など。西321・東226が定番)',(-258.2,-71.2)),('Village','ツールボックス・工業系','鍵不要',(418.4,118)),('Gas Station','レジ・医療','鍵不要(事務所は鍵)',(-189.3,420)),('Scav Island','武器箱・スタッシュ','鍵不要',(216,424))],
+ 'Factory': [('オフィス','金庫・ファイルキャビネット','一部Factory系キー(メインは鍵不要)',(21,39)),('Rafters(3F通路)','武器箱','鍵不要',(18,4)),('Med Tent','医療系','鍵不要',(-18,-29))],
+ 'StreetsOfTarkov': [('Kilmovモール','店舗ルート広範囲','鍵不要',(-128,-35)),('LERM Expo','カバンのレアドロップ+車部品','鍵不要',(239,-60)),('Lexos','車部品・工業','一部部屋キーあり',(66,305)),('Cinema','雑貨・金策','鍵不要',(-175,400)),('Pinewoodホテル','鍵部屋多数','要: Pinewood各部屋キー(215など)',(-35,64))],
  'GroundZero': [('TerraGroup本社','インテリ・オフィスルート','一部オフィスキー',(-50,0)),('Tarbank','金庫・金策','一部キー(金庫室)',(43,150))],
  'Interchange': [('Techlight','電子部品(高額)','鍵不要',(91,54)),('Kiba','銃器店','要: Kiba Arms外扉+内扉キーの2本',(-18,-25)),('Goshan/IDEA/OLI','食料・雑貨・広範囲','鍵不要',(-115,-45)),('Ultra Medical','医療','鍵不要',(54,-128))],
- 'Lighthouse': [('浄水場','高級ルート(ローグ注意)','鍵不要エリア多め',('pct',45.0,30.0)),('Cottages','金庫・レア','要: コテージ各キー',('pct',56.0,65.0)),('Train Yard','工業・武器','鍵不要',('pct',48.0,18.0)),('VPX候補: Southern Villa / Hillside / 浄水場','VPX・Virtex・COFDM系の軍用電子品スポーン','一部キー部屋あり',('pct',54.0,62.0))],
- 'Reserve': [('White Kingサーバー','VPXなど軍用電子品のルーズルート','鍵不要',('pct',37.0,45.0)),('D-2サーバー室','VPX・COFDM・Virtex候補','電源投入・待ち伏せ注意',('pct',90.0,38.0)),('RB-PKPTS','VPXの有力候補。鍵部屋','RB-PKPTS key',('pct',80.0,32.0))],
+ 'Lighthouse': [('浄水場','高級ルート(ローグ注意)','鍵不要エリア多め',(-65,-600)),('Cottages','金庫・レア','要: コテージ各キー',(-162,-225)),('Train Yard','工業・武器','鍵不要',(-30,-882)),('VPX候補: Southern Villa / Hillside / 浄水場','VPX・Virtex・COFDM系の軍用電子品スポーン','一部キー部屋あり',(-151,-243))],
+ 'Reserve': [('White Kingサーバー','VPXなど軍用電子品のルーズルート','鍵不要',(-49.5,15.5)),('D-2サーバー室','VPX・COFDM・Virtex候補','電源投入・待ち伏せ注意',('pct',69.3,81.7)),('RB-PKPTS','VPXの有力候補。鍵部屋','RB-PKPTS key',('pct',70.0,30.0))],
 }
 EXTRA_EXNOTE = {
  'StreetsOfTarkov':'Streetsは脱出が多く位置の個体差も大きい。上記は代表例+目安。必ずOキー2連打で自分のリストを確認。',
@@ -180,45 +170,101 @@ EXTRA_EXNOTE = {
  'Reserve':'D-2は待ち伏せが多い。Armored TrainとHermetic Doorは作動条件を必ず確認。',
 }
 
-DIFF_COLOR={1:'#4ade80',2:'#a3e635',3:'#facc15',4:'#fb923c',5:'#f87171'}
-SUBSPOTS = {}
+# Marker percentages derived from tarkov.dev's current world-coordinate data
+# and the matching SVG transforms. These override the old raster-map positions.
+EXTRACT_PIN_PCT = {
+ 'Customs': {
+  'ZB-1011':(7.1,32.8), 'ZB-1012':(21.9,35.8), 'ZB-1013':(46.5,28.3),
+  'Old Gas Station':(36.3,24.4), 'Crossroads':(96.5,40.3), 'Trailer Park':(94.6,13.6),
+  'RUAF Roadblock':(66.2,31.0), 'Dorms V-EX':(48.3,95.6), "Smuggler's Boat":(69.1,79.0),
+  'Railroad Passage':(52.2,1.0),
+ },
+ 'Woods': {
+  'Outskirts':(21.1,93.8), 'UN Roadblock':(84.0,88.6), 'Northern UN Roadblock':(85.5,62.5),
+  'RUAF Gate / RUAF Roadblock':(56.0,99.0), 'ZB-016':(73.6,68.2), 'ZB-014':(14.1,71.6),
+  'Bridge V-EX':(80.4,30.2), 'Power Line Passage':(5.1,61.1), 'Friendship Bridge':(39.3,5.2),
+  'Railway Bridge to Tarkov':(97.8,76.9),
+ },
+ 'Shoreline': {
+  'Tunnel':(8.2,71.1), 'Path to Lighthouse':(3.5,15.5), 'Road to Customs':(87.4,40.2),
+  'Railway Bridge':(98.3,70.0), "Smuggler's Path":(79.1,15.5), "Climber's Trail":(46.0,5.2),
+  'Mountain Bunker':(57.4,2.8), 'Road to North V-EX':(67.1,3.4), 'Pier Boat':(53.6,94.5),
+ },
+ 'Factory': {
+  'Gate 3':(3.1,13.0), 'Cellars':(73.1,2.2), 'Gate 0':(8.7,98.7),
+  'Office Window':(20.9,41.5), 'Camera Bunker Door':(20.7,65.1),
+ },
+ 'StreetsOfTarkov': {
+  'Expo Checkpoint':(18.2,23.0), 'Cardinal Apartment Parking':(36.2,16.2),
+  'Stylobate Building Elevator':(61.0,26.9), 'Klimov Shopping Mall Exfil':(80.7,35.0),
+  'Sewer River':(97.9,62.2), 'Damaged House':(94.9,77.3), 'Collapsed Crane':(17.7,68.6),
+  'Crash Site':(1.7,84.8), 'Klimov Street':(97.2,40.9), "Smuggler's Basement":(41.0,41.7),
+  'Pinewood Basement':(72.5,43.5), 'Primorsky Ave Taxi V-EX':(53.9,91.4), 'Courtyard':(78.3,96.1),
+ },
+ 'GroundZero': {
+  'Nakatani Basement Stairs':(76.2,94.1), 'Emercom Checkpoint':(28.0,5.4),
+  'Mira Prospect':(8.8,17.5), 'Police Checkpoint':(77.2,49.0),
+ },
+ 'Interchange': {
+  'Railway':(12.2,1.4), 'Emercom Checkpoint':(89.2,81.7), 'Power Station V-EX':(82.4,8.6),
+ },
+ 'Lighthouse': {
+  'Northern Checkpoint':(37.9,0.5), 'Southern Road':(76.5,82.3), 'Path to Shoreline':(83.0,50.9),
+  'Road to Military Base':(79.6,12.4), 'Mountain Pass':(64.8,57.6), 'Side Tunnel':(55.0,76.4),
+  'Armored Train':(48.0,7.2),
+ },
+ 'Reserve': {
+  'Armored Train':(24.3,23.2), 'Bunker Hermetic Door':(38.4,15.3), 'Cliff Descent':(50.4,88.4),
+  'D-2':(69.3,81.7), 'Exit to Woods':(42.6,9.6), 'Scav Lands (Co-Op)':(70.4,24.1),
+  'Sewer Manhole':(42.0,64.2),
+ },
+}
 
-TASK_PIN_PCT = {}
+SCAV_PIN_PCT = {
+ 'Customs': {
+  'Factory Shacks':(46.0,57.0), 'Warehouse 4':(33.3,51.7), 'Old Road Gate':(48.2,95.8),
+  'Sniper Roadblock':(63.8,79.6), 'Railroad to Port':(79.2,65.0), 'Railroad to Tarkov':(80.5,16.5),
+  'Administration Gate':(2.5,46.4), 'Military Base CP':(5.0,79.8), 'Passage Between Rocks':(14.8,93.3),
+ },
+ 'Woods': {
+  'Scav Bunker(北西)':(30.2,15.4), 'Scav House(南西)':(16.5,85.3), 'The Boat(湖岸)':(33.4,83.3),
+  "Dead Man's Place":(32.0,86.5), 'Mountain Stash(両陣営)':(60.9,51.7), 'Eastern Rocks':(82.1,64.8),
+  'Old Railway Depot':(82.7,78.4),
+ },
+ 'Shoreline': {
+  'Ruined Road(南西・Tunnelのすぐ南)':(8.8,72.4), 'RWing Gym Entrance(リゾート)':(51.3,30.4),
+  'Admin Basement(リゾート)':(48.8,25.7), 'Lighthouse(南の灯台)':(61.7,95.1),
+ },
+ 'Factory': {'Camera Bunker Door':(20.7,65.1)},
+ 'StreetsOfTarkov': {
+  'Near Kamchatskaya Arch(西)':(10.5,41.6), 'Sewer Manhole':(7.8,77.4),
+  'Ventilation Shaft':(74.2,86.9), 'Entrance to Catacombs(東)':(94.9,65.2),
+ },
+ 'GroundZero': {'Scav Checkpoint':(64.3,9.1)},
+ 'Interchange': {'Scav Camp(西の駐車場)':(31.0,47.4), 'Hole in the Fence(東)':(79.3,46.7)},
+ 'Lighthouse': {
+  'Scav Hideout at the Grotto(西海岸)':(31.5,29.7), 'Industrial Zone Gates':(63.0,11.8),
+  'Hideout under the Landing Stage(南西海岸)':(36.0,74.6), 'South Road Landside':(75.1,82.3),
+ },
+ 'Reserve': {
+  'Heating Pipe':(54.8,17.2), 'Checkpoint Fence':(38.3,74.8),
+  'Depot Hermetic Door':(28.4,28.1), 'Hole in the Wall by the Mountains':(93.0,59.1),
+ },
+}
 
 MAP_JA={'Customs':'CUSTOMS','Woods':'WOODS','Shoreline':'SHORELINE','Factory':'FACTORY','StreetsOfTarkov':'STREETS','GroundZero':'GROUND ZERO','Interchange':'INTERCHANGE','Lighthouse':'LIGHTHOUSE','Reserve':'RESERVE'}
-def jp_url(tr,slug): return JP+quote(f"{tr}/{slug.replace('_',' ')}")
 
 modal_data={}  # id -> dict
-taskdata=[]  # for planner
 sections=[]; tabs=[]
-for mkey,tasks in MAPS.items():
-    tasks=sorted(tasks,key=lambda t:t[2])
+for mkey in MAP_JA:
     p=make_pct(mkey+'.svg')
-    pins=[]; rows=[]
-    for i,(name,tr,diff,imp,place,desc,items,slug,anchor) in enumerate(tasks,1):
-        col=DIFF_COLOR[diff]; stars='★'*diff+'☆'*(5-diff)
-        tid=f'{mkey}_t{i}'
-        q = quote_plus(f'Escape from Tarkov {name} location')
-        modal_data[tid]={'title':f'{i}. {name}','sub':f'〔{tr}〕 難易度 {stars} / 重要度 {imp}','place':place,'desc':desc,
-                         'items':linkify(items),'img':IMG+q,'map':mkey,
-                         'wl':EN+quote(slug),'wt':'🖼 このタスクのwiki(写真あり)','pt':'task','pn':str(i),'pc':col}
-        task_pin = TASK_PIN_PCT.get((mkey,name))
-        if anchor or task_pin:
-            x,y = task_pin if task_pin else anchor_pct(p, anchor)
-            modal_data[tid]['x']=x; modal_data[tid]['y']=y
-            pins.append(f'<button class="pin taskpin" style="left:{x}%;top:{y}%;--c:{col}" data-m="{tid}"><span class="dot">{i}</span></button>')
-            for (sx,sz),slabel in SUBSPOTS.get((mkey,name),[]):
-                sxp,syp = p(sx,sz)
-                sid2=f'{tid}_sub{sxp}'
-                modal_data[sid2]=dict(modal_data[tid]); modal_data[sid2]['sub']=slabel; modal_data[sid2]['title']=f'{i}. {name}(関連地点)'; modal_data[sid2]['place']=slabel
-                pins.append(f'<button class="pin taskpin" style="left:{sxp}%;top:{syp}%;--c:{col}" data-m="{sid2}"><span class="dot sub">{i}</span></button>')
-        import re as _re
-        taskdata.append({'id':tid,'map':mkey,'name':name,'diff':diff,'imp':imp,'items':_re.sub('<[^>]+>','',items),'place':place})
-        chk=f'<input type="checkbox" class="done" data-k="{tid}"><button class="plan" data-k="{tid}" title="レイドプランに追加">＋</button>'
-        loc='' if anchor else '<span class="nopin">ピン無し</span>'
-        rows.append(f'''<div class="row" data-k="{tid}">{chk}<div class="main"><span class="badge" style="--c:{col}">{i}</span><div class="tinfo"><span class="tname">{name} <small>〔{tr}〕 {loc}</small></span><span class="tmeta">難易度 <b style="color:{col}">{stars}</b>　重要度 <b>{imp}</b>　場所: {place}</span><span class="tdesc">{desc}</span><span class="tdesc"><b>必要:</b> {linkify(items)}</span></div></div><div class="links"><a href="{jp_url(tr,slug)}" target="_blank" rel="noopener">wiki</a><a href="{EN}{quote(slug)}" target="_blank" rel="noopener">EN</a></div></div>''')
+    labelpins=[]
+    for (lx,lz),label,size in cfgs[mkey+'.svg'].get('labels',[]):
+        x,y=p(lx,lz)
+        labelpins.append(f'<span class="labelpin" style="left:{x}%;top:{y}%">{label}</span>')
     expins=[]; exrows=[]
     for j,(ename,method,etype,anchor) in enumerate(EXTRACTS.get(mkey,[]),1):
+        anchor=('pct', *EXTRACT_PIN_PCT[mkey][ename])
         eid=f'{mkey}_e{j}'
         cls='exa' if etype=='a' else 'exc'
         tag='常設' if etype=='a' else '条件'
@@ -232,6 +278,7 @@ for mkey,tasks in MAPS.items():
             expins.append(f'<button class="pin {'exapin' if etype=='a' else 'excpin'}" style="left:{x}%;top:{y}%" data-m="{eid}"><span class="exdot {cls}">EX</span>{lbl}</button>')
         exrows.append(f'<div class="exrow {cls}r"><span class="exbadge {cls}">{tag}</span><b>{ename}</b> — {method}</div>')
     for j,(ename,anchor) in enumerate(SCAV_EX.get(mkey,[]),1):
+        anchor=('pct', *SCAV_PIN_PCT[mkey][ename])
         sid=f'{mkey}_s{j}'
         q=quote_plus(f'Escape from Tarkov {mkey} {ename} scav extraction')
         modal_data[sid]={'title':f'SCAV脱出: {ename}','sub':'スカブ専用/共有脱出(位置は目安)','place':mkey,'desc':'スカブで出た時の脱出候補。リストはOキー2連打で確認','items':'','img':IMG+q,'map':mkey,
@@ -252,37 +299,21 @@ for mkey,tasks in MAPS.items():
         lootrows.append(f'<div class="exrow lootr"><span class="exbadge exl2">$</span><b>{lname}</b> — {ldesc}<br><small>鍵: {linkify(lkey)}</small></div>')
     exnote=EXTRA_EXNOTE.get(mkey,'')
     W,H=dims[mkey]
-    tabs.append(f'<button class="tab" data-t="{mkey}">{MAP_JA[mkey]}<small>({len(tasks)})</small></button>')
+    tabs.append(f'<button class="tab" data-t="{mkey}">{MAP_JA[mkey]}</button>')
     sections.append(f'''<section id="{mkey}" class="mapsec">
 <div class="mapbar">
 <div class="grp"><button class="mbtn zout">−</button><button class="mbtn zin">＋</button><button class="mbtn fsb">⛶</button></div>
 <div class="grp layers">
-<button class="mbtn tgl on" data-g="taskpin"><i class="sw" style="--c:#a3e635"></i>タスク</button>
+<button class="mbtn tgl on" data-g="labelpin"><i class="sw" style="--c:#d4c6a5"></i>地名</button>
 <button class="mbtn tgl on" data-g="exapin"><i class="sw sq" style="--c:#1eae4e"></i>常設EX</button>
 <button class="mbtn tgl on" data-g="excpin"><i class="sw sq" style="--c:#e8a33d"></i>条件EX</button>
 <button class="mbtn tgl" data-g="scavpin"><i class="sw" style="--c:#2f86d6"></i>SCAV</button>
 <button class="mbtn tgl" data-g="lootpin"><i class="sw" style="--c:#d9a521"></i>金策</button>
 </div></div>
-<div class="map-wrap"><div class="map" data-map="{mkey}" style="aspect-ratio:{W}/{H}"><img loading="lazy" src="map_{mkey}.jpg" alt="{mkey}">{''.join(pins)}{''.join(expins)}</div></div>
-<div class="list"><h3>タスク一覧(難易度順) <small>チェックで完了管理 / wikiリンクはここから</small></h3>{''.join(rows)}
-<h3>脱出ポイントと方法 <small>※位置は目安あり。レイド中にOキー2連打で必ず確認</small></h3>
+<div class="map-wrap"><div class="map" data-map="{mkey}" style="aspect-ratio:{W}/{H}"><img loading="lazy" src="map_{mkey}.svg" alt="{mkey}">{''.join(labelpins)}{''.join(expins)}</div></div>
+<div class="list"><h3>脱出ポイントと方法 <small>※位置は目安あり。レイド中にOキー2連打で必ず確認</small></h3>
 <p class="note"><a class="il" href="{EN}{WIKI_MAP[mkey]}#Extractions" target="_blank" rel="noopener">🖼 wikiの{mkey} 脱出セクションを開く(全脱出の写真つき一覧)</a></p>{''.join(exrows)}{f'<p class="note">{exnote}</p>' if exnote else ''}
 <h3>金策スポットと必要な鍵 <small>マップの「金策」レイヤーで位置表示</small></h3>{''.join(lootrows)}</div></section>''')
-
-anyrows=[]
-for i,(name,tr,diff,imp,desc,slug) in enumerate(sorted(ANYMAP,key=lambda t:t[2]),1):
-    col=DIFF_COLOR[diff]; stars='★'*diff+'☆'*(5-diff); tid=f'any_t{i}'
-    anyrows.append(f'''<div class="row" data-k="{tid}"><input type="checkbox" class="done" data-k="{tid}"><div class="main"><span class="badge" style="--c:{col}">{i}</span><div class="tinfo"><span class="tname">{name} <small>〔{tr}〕</small></span><span class="tmeta">難易度 <b style="color:{col}">{stars}</b>　重要度 <b>{imp}</b></span><span class="tdesc">{desc}</span></div></div><div class="links"><a href="{jp_url(tr,slug)}" target="_blank" rel="noopener">wiki</a><a href="{EN}{quote(slug)}" target="_blank" rel="noopener">EN</a></div></div>''')
-tabs.append(f'<button class="tab" data-t="anymap">ANY MAP<small>({len(ANYMAP)})</small></button>')
-sections.append(f'<section id="anymap" class="mapsec"><div class="list"><p class="note">場所指定なし。各マップと並行で自然に進むものが多い。新タスクはリンク先とゲーム内目標欄を正として。</p>{"".join(anyrows)}</div></section>')
-
-shop = f'''<section id="shop" class="mapsec"><div class="list">
-<h3>共通消耗品</h3><p class="note">{linkify('MS2000マーカー')}×7以上(Customs1・Woods2・Shoreline1・Factory3/スペシャルスロット推奨)　/　{linkify('グリーンフレア')}×1(Cease Fire!はメール支給あり、無い時の予備)</p>
-<h3>鍵</h3><p class="note">{linkify('Dorm room 220キー')}(Chemical納品用)　/　{linkify("Company director's room key")}(Shipment)　/　{linkify('Health Resort office key')}(Chemistry Closet)　/　{linkify('Pinewood hotel room 215 key')}(Watching You)　/　{linkify('Relaxation room key')}(Productivity)</p>
-<h3>設置・納品アイテム</h3><p class="note">{linkify('6L31 60連')}×2(Ice Cream Cones)　/　{linkify('Ghostバラクラバ')}+{linkify('緑シュマグ')}+{linkify('RayBench')}+{linkify('丸フレームサングラス')}(Gratitude)　/　{linkify('7.62x51パック')}×1(Break the Deal。ELCANは所持済)</p>
-<h3>装備指定タスク用(後回しOK)</h3><p class="note">サプ付き{linkify('M4A1')}/ADAR(Wet Job)　/　{linkify('M4A1')} or M16+{linkify('6B43')}+{linkify('Kiver-M')}(Good Times)　/　{linkify('AUG')}(One-Way Ticket)　/　ボルトアクション(Tarkov Shooter)　/　{linkify('HK MP5')}+パーツ(Gunsmith)</p>
-<h3>優先攻略順の目安</h3><p class="note">① Customsの緑ピン消化 → ② Woodsの設置系を1〜2レイド → ③ ShorelineのMaster Key(PKレピュ+0.1)+リゾート系 → ④ Factory地下マーク系を1レイド → ⑤ Streets回収系 → ★5ボス系は装備と資金が整ってから</p>
-</div></section>'''
 
 GUN = lambda slug,name: f'<a class="il" href="{EN}{quote(slug)}" target="_blank" rel="noopener">{name}</a>'
 weapons_html = f"""<section id="weapons" class="mapsec"><div class="list">
@@ -294,13 +325,13 @@ weapons_html = f"""<section id="weapons" class="mapsec"><div class="list">
 <p class="note"><b>9x19(MPX/MP5/ピストル):</b> 今→ <b>PST gzh</b>(~20・非装甲/脚用) / 目標→ <b>AP 6.3</b>(~30・ようやく装甲に届く)。装甲相手は脚か顔限定と割り切る</p>
 <p class="note"><b>12ゲージ(ショットガン):</b> 今→ <b>フレシェット</b>(~26×8粒・近距離で装甲ごと溶かす) / スラグなら <b>AP-20</b>(~37・単発高貫通)。屋内最強枠</p>
 <p class="note"><b>7.62x54R(モシン/SVD):</b> 今→ <b>LPS gzh</b>(~37・ヘルメット貫通ワンパン狙い) / 目標→ <b>SNB</b>(~60台・対重装甲)。頭を狙う武器なので安弾でも仕事する</p>
-<p class="note"><b>5.56x45(M4/ADAR/AUG):</b> 今→ <b>M855</b>(~27) / 目標→ <b>M855A1</b>(~40台)→<b>M995</b>(最上位)。Wet Job/One-Way Ticket着手時に用意</p>
+<p class="note"><b>5.56x45(M4/ADAR/AUG):</b> 今→ <b>M855</b>(~27) / 目標→ <b>M855A1</b>(~40台)→<b>M995</b>(最上位)</p>
 <p class="note"><b>.366(VPO系・番外):</b> <b>AP-M</b>(~40台)が「安い銃で高貫通」の抜け道枠。低予算で装甲PMCに対抗したい時の選択肢</p>
 <p class="note" style="border-left:3px solid #c98f2c"><b>原則:</b> 迷ったら「貫通30以上を上に5〜10発+安弾を下に」のスタック詰め。貫通が敵アーマークラス×10を超えてれば概ね抜ける、が目安</p>
 <h3>① メイン: AK-74N「現行ビルド」 <small>反動61 / エルゴ49.8 — 完成済み</small></h3>
 <p class="note"><b>構成:</b> {GUN('Kalashnikov_AK-74N_5.45x39_assault_rifle','AK-74N')} + RRD-4Cマズル(拾い物・死亡ロスト注意) + M-LOKハンドガード + RK-4フォアグリップ + SAWグリップ + EKP-1S-03サイト + 6L20 30連<br>
 <b>弾:</b> 5.45 PS(貫通28)。PP/BT弾が解放され次第マグ上部にスタック積み<br>
-<b>運用:</b> タスク攻略レイド用。Prapor保険必須。プリセット登録してロスト時の復旧を楽に<br>
+<b>運用:</b> 通常レイド用。Prapor保険必須。プリセット登録してロスト時の復旧を楽に<br>
 <b>強み:</b> 反動61は9.3万の店売りプリセット(65)より上。この構成が現状の最適解</p>
 
 <h3>② 節約サブ: AK-74/74N 素組み <small>約5〜6万 / 使い捨て用</small></h3>
@@ -316,19 +347,16 @@ weapons_html = f"""<section id="weapons" class="mapsec"><div class="list">
 <h3>④ 寮・屋内用: MP-153/155 ショットガン <small>約3〜4万</small></h3>
 <p class="note"><b>構成:</b> {GUN('MP-153_12ga_semi-automatic_shotgun','MP-153')}ほぼ素のままでOK<br>
 <b>弾:</b> 12ゲージ フレシェット — 近距離なら胴撃ちでアーマーごと溶ける<br>
-<b>運用:</b> 寮タスク・Factory・屋内CQB。Angry Watchman系のPMC狩りと相性◎</p>
+<b>運用:</b> 寮・Factory・屋内CQB向け。近距離のPMC戦と相性◎</p>
 
-<h3>⑤ 遠距離+タスク兼用: モシン <small>2万以下 / コスパ最強スナイパー</small></h3>
+<h3>⑤ 遠距離用: モシン <small>2万以下 / コスパ最強スナイパー</small></h3>
 <p class="note"><b>構成:</b> {GUN('Mosin_7.62x54R_bolt-action_rifle_(Sniper)','モシン(スナイパー)')}素のまま or PUスコープ<br>
 <b>弾:</b> 7.62x54R LPS Gzh — 頭に当てればヘルメット貫通でワンパン<br>
-<b>運用:</b> メインロード監視・待ち伏せ。The Tarkov Shooter Part 1(ボルトアクションでスカブキル)がそのまま進む一石二鳥枠</p>
+<b>運用:</b> メインロード監視・待ち伏せ。安価な遠距離用として使いやすい</p>
 
 <h3>⑥ 番外: MPX 脚撃ち <small>装甲PMC相手は脚 or 顔限定</small></h3>
 <p class="note"><b>弾:</b> 9x19の安弾は貫通20前後で装甲に無力。高レートで脚を溶かすレグメタ運用専用<br>
 <b>運用:</b> 屋内の割り切り運用のみ。基本は③AKMを推奨</p>
-
-<h3>⑦ タスク装備メモ(揃えるのは後でOK)</h3>
-<p class="note">Wet Job P1 = サプ付き{GUN('Colt_M4A1_5.56x45_assault_rifle','M4A1')}/ADAR系でスカブ10 / One-Way Ticket = {GUN('Steyr_AUG_A3_5.56x45_assault_rifle','AUG')}でHS15 / Good Times P1 = M4orM16 + {GUN('6B43_Zabralo-Sh_body_armor','6B43')} + {GUN('Kiver-M_bulletproof_helmet','Kiver-M')}でPMC10 / Gunsmith = {GUN('HK_MP5_9x19_submachine_gun_(Navy_3_Round_Burst)','HK MP5')}改造 — いずれも装備コストが重いので、レベルと資金が乗ってから着手</p>
 
 <h3>共通の原則</h3>
 <p class="note">「銃より弾」。マガジンは上5〜10発に貫通弾+下に安弾のスタック詰めが基本。良パーツ(RRD-4C等)は消耗品と割り切り、保険は毎レイド必ず。武器はプリセット保存しておくと再構築が一瞬</p>
@@ -351,7 +379,7 @@ meds_html = f"""<section id="meds" class="mapsec"><div class="list">
 <h3>注射器Tier</h3>
 <p class="note"><b>S(キープ/ガチ用):</b> {GUN('eTG-change_regenerative_stimulant_injector','eTG-change')}(継続回復)、{GUN('Zagustin_hemostatic_drug_injector','Zagustin')}(重出血予防)、{GUN('Adrenaline_injector','アドレナリン')}(交戦直前)<br>
 <b>A(実用):</b> {GUN('Propital_regenerative_stimulant_injector','Propital')}(回復+鎮痛でラッシュ用)、{GUN('SJ6_TGLabs_combat_stimulant_injector','SJ6')}(スタミナ強化=長距離移動)<br>
-<b>B(売却/納品):</b> その他の注射器は基本フリマ売り or タスク・ハイドアウト(スティム系要求)用にキープ。<b>注射器ケース</b>が作れるようになったら集める価値が跳ね上がる</p>
+<b>B(売却/保管):</b> その他の注射器は基本フリマ売りかハイドアウト用にキープ。<b>注射器ケース</b>が作れるようになったら集める価値が跳ね上がる</p>
 <p class="note" style="border-left:3px solid #c98f2c">運用メモ: 回復キットはセキュアコンテナへ(死んでも残る)。レイド中に拾った注射器もセキュアに入れる癖をつけると事故らない</p>
 </div></section>"""
 sections.append(meds_html)
@@ -364,30 +392,28 @@ keep_html = f"""<section id="keep" class="mapsec"><div class="list">
 <p class="note">{GUN('SSD_drive','SSDドライブ')} / {GUN('SAS_drive','SASドライブ')} — 400k儀式の主材料。フリマ相場が安い時に確保</p>
 <h3>ハイドアウト強化用(序盤は捨てないで)</h3>
 <p class="note">{GUN('Bolts','ボルト')}・{GUN('Screw_nuts','ナット')}・{GUN('Pack_of_screws','ネジ')} / {GUN('Wires','電線')}・{GUN('CPU_fan','CPUファン')}(ファームで大量必要) / {GUN('Metal_spare_parts','金属部品')}・{GUN('Electric_motor','電動モーター')} / 工具類({GUN('Pliers','ペンチ')}・{GUN('Screwdriver','ドライバー')}) — 倉庫圧迫するけどLv2施設まではキープ推奨</p>
-<h3>タスク納品で頻出(見つけたらキープ)</h3>
-<p class="note">{GUN('Gas_analyzer','ガスアナライザー')} / {GUN('Corrugated_hose','コルゲートホース')} / {GUN('Military_power_filter','軍用フィルター類')} / {GUN('Fire_control_computer','FireControl系電子機器')} / ドッグタッグ(Skierタスク・BDタグはサークル用) / 各種キー(使い道不明でも一旦キープ→wikiで確認)</p>
+<h3>用途が多いアイテム(見つけたらキープ)</h3>
+<p class="note">{GUN('Gas_analyzer','ガスアナライザー')} / {GUN('Corrugated_hose','コルゲートホース')} / {GUN('Military_power_filter','軍用フィルター類')} / {GUN('Fire_control_computer','FireControl系電子機器')} / ドッグタッグ / 各種キー(使い道不明でも一旦キープ→wikiで確認)</p>
 <h3>バーター素材(トレーダー交換で化ける)</h3>
 <p class="note">タバコ({GUN('Pack_of_Malboro_cigarettes','マルボロ')}等)・{GUN('Condensed_milk','コンデンスミルク')}・{GUN('Emelya_rye_croutons','クルトン')}などの食品 / {GUN('Golden_neck_chain','金のチェーン')}・{GUN('Chainlet','チェーンレット')}などの貴金属 — 換金前にトレーダーのバーター一覧を確認すると得することが多い</p>
-<p class="note" style="border-left:3px solid #c98f2c">判断に迷ったら: アイテム検査画面の「関連品目を検索」でタスク/ハイドアウト/バーターの用途が見られる。1スロあたり2万ルーブル以上なら持ち帰り優先</p>
+<p class="note" style="border-left:3px solid #c98f2c">判断に迷ったら: アイテム検査画面の「関連品目を検索」でハイドアウト/バーターの用途を確認。1スロあたり2万ルーブル以上なら持ち帰り優先</p>
 </div></section>"""
 sections.append(keep_html)
 tabs.append('<button class="tab" data-t="keep">KEEP</button>')
 
 keys_html = f"""<section id="keys" class="mapsec"><div class="list">
-<h3>今のタスクで必要な鍵(最優先で確保)</h3>
-<p class="note">{GUN('Dorm_room_220_key','Dorm room 220')} — Chemical P1の納品用(Customs) / {GUN("Company_director's_room_key","Company director room key")} — Shipment Tracking(Customsボイラー棟2F) / {GUN('Health_Resort_office_key_with_a_blue_tape','Health Resort office 青テープ')} — Chemistry Closet(Shorelineリゾート東110) / {GUN('Pinewood_hotel_room_215_key','Pinewood hotel 215')} — Watching You(Streets) / {GUN('Relaxation_room_key','Relaxation room')} — The Secret to Productivity(Streets/Hive)。いずれもフリマ購入可・使っても消えないのでセキュア常備</p>
 <h3>汎用性が高い「買って損しない」鍵</h3>
-<p class="note"><b>{GUN('Factory_exit_key','Factory exit key')}</b> — 最重要。CustomsのZB-1013脱出+Factoryの脱出+複数タスクで使う万能鍵。使用回数制なので予備も視野<br>
-<b>{GUN("Tarcone_Director's_office_room_key","Tarcone Director office key")}</b> — Big Red事務所(PC・インテリ)。Farming系タスクでも再登場しがち<br>
+<p class="note"><b>{GUN('Factory_exit_key','Factory exit key')}</b> — 最重要。CustomsのZB-1013脱出とFactoryの脱出で使える。使用回数制なので予備も視野<br>
+<b>{GUN("Tarcone_Director's_office_room_key","Tarcone Director office key")}</b> — Big Red事務所(PC・インテリ)<br>
 <b>{GUN('Dorm_room_314_marked_key','Dorm room 314 Marked key')}</b> — Customs寮のマークドルーム。高額だがレア武器・ケース抽選。金策フェーズ向け<br>
-<b>{GUN('Machinery_key','Machinery key')}</b> — Customs各所+タスク再利用。レイド内(寮205ジャケット)で無料入手可</p>
+<b>{GUN('Machinery_key','Machinery key')}</b> — Customsで使用。レイド内(寮205ジャケット)で無料入手可</p>
 <h3>マップ別・金策鍵の定番</h3>
 <p class="note"><b>Shoreline:</b> リゾート部屋キー(西321・東226・東310あたりが定番。LEDX/医療レア抽選)— 相場と回転率をフリマで確認してから<br>
 <b>Interchange:</b> {GUN('Kiba_Arms_International_outer_door_key','Kiba外扉')}+{GUN('Kiba_Arms_inner_grate_door_key','Kiba内扉')}の2本セットで銃器店<br>
 <b>Woods:</b> {GUN('ZB-014_key','ZB-014')} — 脱出兼スタッシュ<br>
 <b>Lighthouse:</b> コテージ各キー(金庫・レア) / <b>Streets:</b> アパート系キーは当たり外れ大きいので後回しでOK</p>
 <h3>レイド内で拾う系(買わない)</h3>
-<p class="note">{GUN('Unknown_key','Unknown key')} — Extortionist(死体から) / Machinery key(寮205) / その他「用途不明の鍵」は一旦キープ→検査画面の「関連品目を検索」かwikiで開く扉を確認してから売る</p>
+<p class="note">Machinery key(寮205) / その他「用途不明の鍵」は一旦キープ→検査画面の「関連品目を検索」かwikiで開く扉を確認してから売る</p>
 <h3>鍵の管理術</h3>
 <p class="note">① 鍵は死んでも失わない<b>セキュアコンテナ</b>へ。使う分だけ持ち込む ② {GUN('Documents_case','ドキュメントケース')}や{GUN('Key_tool','キーツール')}(鍵専用4x4)を入手したら倉庫圧迫が解決 ③ フリマで買う時は<b>使用回数の残り</b>を確認(中古は安いが回数減) ④ 使用回数のある鍵(Factory exit等)は残数を時々チェック</p>
 </div></section>"""
@@ -402,7 +428,7 @@ hideout_html = f"""<section id="hideout" class="mapsec"><div class="list">
 <p class="note">{GUN('Screwdriver','ドライバー')} / {GUN('Pliers','ペンチ')} / {GUN('Set_of_files_Master','ヤスリセット')} / {GUN('Leatherman_Multitool','マルチツール')} / {GUN('Electric_drill','電動ドリル')} / {GUN('Toolset','ツールセット')} — ワークベンチ・水収集・栄養ユニット等の建設素材。売ると後で買い直す羽目になる筆頭</p>
 <h3>金策系ステーション用(投資回収が大きい)</h3>
 <p class="note"><b>ビットコインファーム:</b> {GUN('Graphics_card','GPU')}(枚数分だけ生産速度UP)+{GUN('CPU_fan','CPUファン')}を大量 — CPUファンは見つけたら全部持ち帰り推奨<br>
-<b>インテリセンター:</b> 電子系({GUN('Phased_array_element','電子部品類')}・{GUN('Military_cable','ミリタリーケーブル')})+家具系。Lv2でタスク報酬+5%とスカブ帰還短縮の神施設<br>
+<b>インテリセンター:</b> 電子系({GUN('Phased_array_element','電子部品類')}・{GUN('Military_cable','ミリタリーケーブル')})+家具系。Lv2でスカブ帰還短縮<br>
 <b>水収集器+栄養ユニット:</b> {GUN('Water_filter','浄水フィルター')}(建設+稼働の両方で消費。フリマで見たら買い)+{GUN('Corrugated_hose','コルゲートホース')} — 浄水(Superwater)生産は序盤の安定金策</p>
 <h3>快適系(急がないが素材はキープ)</h3>
 <p class="note"><b>換気/空気清浄:</b> エアフィルター類 / <b>セキュリティLv2-3:</b> 電線・{GUN('Analog_thermometer','計器類')}・軍用電子系 / <b>暖房・照明Lv上げ:</b> 電球・{GUN('Dry_fuel','燃料類')} — {GUN('Metal_fuel_tank','燃料タンク')}と{GUN('Expeditionary_fuel_tank','遠征燃料タンク')}は発電機の稼働に常時必要なので、空でもキープして詰め替え運用</p>
@@ -414,9 +440,6 @@ tabs.append('<button class="tab" data-t="hideout">HIDEOUT</button>')
 
 
 
-
-tabs.append('<button class="tab" data-t="shop">ITEMS</button>')
-sections.append(shop)
 
 css='''
 :root{--bg:#101215;--panel:#191c21;--line:#2c3038;--tan:#b8ad92;--tanb:#e2d8bd;--amber:#c98f2c;--ex:#1eae4e}
@@ -449,14 +472,6 @@ nav{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line);po
 .map-wrap.fs.rot{width:100dvh;height:100dvw;inset:auto;top:50%;left:50%;transform:translate(-50%,-50%) rotate(90deg)}
 #fsx{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:49;width:46px;height:46px;border-radius:50%;background:#000d;border:1px solid var(--amber);color:#fff;font-size:20px}
 body.fsmode #fsx{display:block}
-#fstab{display:none;position:fixed;top:50%;right:0;transform:translateY(-50%);z-index:48;background:#15181dee;border:1px solid var(--amber);border-right:none;border-radius:8px 0 0 8px;color:var(--tanb);padding:14px 7px;font-size:12px;writing-mode:vertical-rl;letter-spacing:.2em}
-body.fsmode #fstab{display:block}
-#fsdrawer{position:fixed;top:0;right:-290px;bottom:0;width:278px;z-index:48;background:#15181df7;border-left:1px solid var(--amber);overflow:auto;transition:right .18s;padding:calc(12px + env(safe-area-inset-top)) 10px 24px}
-#fsdrawer.open{right:0}
-#fsdrawer h5{color:var(--amber);font-size:11px;letter-spacing:.2em;margin:0 0 6px}
-#fsdrawer .fi{display:flex;gap:9px;padding:9px 6px;border:none;border-bottom:1px solid var(--line);align-items:flex-start;width:100%;background:none;color:var(--tanb);text-align:left;font-size:12px;line-height:1.45}
-#fsdrawer .fb{flex:0 0 22px;height:22px;border-radius:50%;color:#111;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:11px;margin-top:1px}
-#fsdrawer .fi small{display:block;color:#9a927e;font-size:10.5px}
 body.fsmode #modal{align-items:flex-start;justify-content:flex-start;padding:10px}
 body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .map-wrap.fs .fsclose{display:none}
@@ -465,9 +480,6 @@ body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .map{position:absolute;left:0;top:0;width:100%;transform-origin:0 0;will-change:transform}
 .map img{display:block;width:100%;height:auto}
 .pin{position:absolute;transform:translate(-50%,-50%);background:none;border:none;padding:6px;cursor:pointer;z-index:2}
-.pin .dot.sub{width:19px;height:19px;font-size:10.5px;background:transparent;color:var(--c);border:2px dashed var(--c);box-shadow:0 0 0 1px #000}
-.pin .dot{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--c);color:#111;font-weight:800;font-size:12.5px;border:2px solid #111;box-shadow:0 0 0 1.5px rgba(255,255,255,.6),0 2px 6px rgba(0,0,0,.6)}
-.pin:active .dot,.pin:hover .dot{transform:scale(1.35)}
 .exdot{display:flex;align-items:center;justify-content:center;width:22px;height:22px;color:#fff;font-weight:800;font-size:10px;border:2px solid #fff;border-radius:3px;box-shadow:0 2px 6px rgba(0,0,0,.6)}
 .exa{background:#1eae4e}.exc{background:#e8a33d;color:#111}
 .exs{background:#2f86d6;border-radius:50%}.exl{background:#d9a521;color:#111;border-radius:50%;font-size:12px}
@@ -477,27 +489,14 @@ body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .exlbl{position:absolute;left:calc(100% - 3px);top:50%;transform:translateY(-50%);font-size:10.5px;font-weight:700;color:#7dffab;white-space:nowrap;text-shadow:0 1px 2px #000,0 -1px 2px #000,1px 0 2px #000,-1px 0 2px #000;pointer-events:none}
 .exlblc{color:#ffc46b}
 .exlbls{color:#8ec9ff}
+.labelpin{position:absolute;transform:translate(-50%,-50%) scale(calc(1/var(--s,1)));transform-origin:center;color:#f1e7c9;background:#101215c9;border:1px solid #706852;border-radius:3px;padding:2px 5px;font-size:9px;font-weight:700;line-height:1;white-space:nowrap;text-shadow:0 1px 2px #000;pointer-events:none;z-index:1}
 @media(max-width:640px){.exlbl{font-size:9px}}
 
 .pin:active .exdot,.pin:hover .exdot{transform:scale(1.35)}
 .list{max-width:1100px;margin:14px auto 26px;padding:0 2px}
 .list h3{font-size:12px;letter-spacing:.15em;color:var(--tanb);margin:16px 0 8px;border-left:3px solid var(--amber);padding-left:8px}
 .list h3 small{color:#8a8375;font-weight:400;letter-spacing:0}
-.row{display:flex;gap:8px;margin-bottom:6px;align-items:stretch}
-.row.off{opacity:.38}
-.done{width:22px;height:22px;margin-top:10px;accent-color:var(--amber);flex:0 0 auto}
-.main{flex:1;display:flex;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
-.badge{flex:0 0 25px;height:25px;border-radius:50%;background:var(--c);color:#111;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;margin-top:2px}
-.tinfo{display:flex;flex-direction:column;gap:2px;min-width:0}
-.tname{color:var(--tanb);font-weight:700;font-size:13.5px}
-.tname small{color:#8a8375;font-weight:400}
-.tmeta{font-size:11.5px}
-.tdesc{font-size:11.5px;color:#9a927e;line-height:1.55}
-.links{display:flex;flex-direction:column;gap:4px;justify-content:center}
-.links a{display:block;text-align:center;border:1px solid var(--line);border-radius:3px;color:var(--amber);font-size:11px;text-decoration:none;padding:4px 9px;background:var(--panel)}
-.links a:active,.links a:hover{border-color:var(--amber)}
 .il{color:var(--amber);text-decoration:underline;text-underline-offset:2px}
-.nopin{color:#6b6455;font-size:10px;border:1px solid #3a3e46;border-radius:3px;padding:0 4px}
 .exrow{font-size:12px;padding:6px 9px;border:1px solid var(--line);border-left:3px solid var(--ex);border-radius:3px;background:var(--panel);margin-bottom:5px;line-height:1.55}
 .exbadge{display:inline-block;background:var(--ex);color:#fff;font-size:9.5px;font-weight:800;border-radius:2px;padding:1px 5px;margin-right:7px}
 .exbadge.exl2{background:#d9a521;color:#111}
@@ -515,11 +514,8 @@ body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .mfoot{padding:0 14px 14px;display:flex;gap:8px;flex-wrap:wrap}
 .mfoot a{flex:1;text-align:center;border:1px solid var(--amber);border-radius:4px;color:var(--tanb);background:#22262c;text-decoration:none;font-size:12.5px;padding:9px 10px}
 @media(max-width:640px){
-.tname small{display:block;margin-top:1px}
-.row{flex-wrap:wrap}.links{flex-direction:row;width:100%;justify-content:flex-end}
 #modal{align-items:flex-end;padding:0}
 .mbox{max-width:100%;border-radius:12px 12px 0 0;border-bottom:none;max-height:86vh}
-.pin .dot{width:27px;height:27px;font-size:13.5px}
 .exdot{width:25px;height:25px}
 .hint{display:none}
 .mapbar{gap:6px}
@@ -534,29 +530,12 @@ css += '''
 #qdrop{position:fixed;top:52px;left:10px;right:10px;max-width:520px;background:#15181d;border:1px solid var(--amber);border-radius:6px;z-index:60;display:none;max-height:50vh;overflow:auto}
 #qdrop .qi{display:block;width:100%;text-align:left;background:none;border:none;border-bottom:1px solid var(--line);color:var(--tanb);padding:10px 12px;font-size:13px}
 #qdrop .qi small{color:#8a8375;margin-left:6px}
-.plan{width:34px;height:34px;margin-top:4px;border-radius:4px;border:1px solid var(--line);background:var(--panel);color:#8a8375;font-size:16px;flex:0 0 auto;cursor:pointer}
-.plan.on{border-color:#3ddc78;color:#3ddc78;background:#16241b}
-#planbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));z-index:44;display:none;gap:8px;align-items:center;background:#15181df2;border:1px solid var(--amber);border-radius:24px;padding:8px 14px;box-shadow:0 6px 20px #000a;max-width:94vw;flex-wrap:wrap;justify-content:center}
-#planbar button{background:#242a24;border:1px solid #3ddc78;color:#d9f5e2;border-radius:16px;padding:6px 12px;font-size:12px}
-#plancount{color:var(--tanb);font-size:12.5px;font-weight:700}
-#planpanel{position:fixed;left:0;right:0;bottom:0;max-height:80vh;overflow:auto;background:#15181d;border-top:2px solid var(--amber);z-index:55;display:none;border-radius:12px 12px 0 0;box-shadow:0 -8px 30px #000c}
-.pp-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);color:var(--tanb)}
-.pp-head button{background:none;border:1px solid var(--line);color:var(--tan);border-radius:4px;font-size:18px;padding:6px 14px;min-width:44px}
-#planbody,.pp-body{padding:12px 16px calc(24px + env(safe-area-inset-bottom))}
-#planbody h4{color:var(--amber);font-size:13px;margin:10px 0 6px;letter-spacing:.1em}
-#planbody .pt{font-size:12.5px;color:var(--tanb);padding:4px 0;border-bottom:1px dashed var(--line)}
-#planbody .pt small{color:#9a927e;display:block}
-#planbody .items{background:#0d0f12;border:1px solid var(--line);border-radius:5px;padding:9px 11px;font-size:12.5px;line-height:1.7;margin-top:8px;color:var(--tanb)}
-.pp-btns{display:flex;gap:8px;margin-top:8px}
-.pp-btns button{flex:1;height:38px;background:#242a24;border:1px solid var(--amber);color:var(--tanb);border-radius:4px;font-size:13px}
 .pin{transform:translate(-50%,-50%) scale(calc(1/var(--s,1)))}
 @media(max-width:640px){#q{flex:1 1 140px}}
 '''
 
 js='''
-const S=(()=>{try{const t=window.localStorage;t.setItem("_t","1");t.removeItem("_t");return t}catch(e){return null}})();
 const MD=__MD__;
-const TD=__TD__;
 const tabs=[...document.querySelectorAll(".tab")],secs=[...document.querySelectorAll(".mapsec")];
 tabs.forEach(t=>t.addEventListener("click",()=>{tabs.forEach(x=>x.classList.remove("on"));secs.forEach(s=>s.classList.remove("on"));t.classList.add("on");document.getElementById(t.dataset.t).classList.add("on");window.scrollTo({top:0});}));
 tabs[0].click();
@@ -584,14 +563,13 @@ document.querySelectorAll(".mapsec").forEach(sec=>{
    wrap.classList.contains("fs")&&!document.fullscreenElement&&window.innerHeight>window.innerWidth)};
  sec.querySelector(".fsb")?.addEventListener("click",async()=>{
   wrap.classList.add("fs");document.body.style.overflow="hidden";document.body.classList.add("fsmode");
-  window._fsExit=exitFs;fillDrawer(sec.id);
+   window._fsExit=exitFs;
   try{await wrap.requestFullscreen();}catch(e){}
   try{await screen.orientation.lock("landscape");}catch(e){}
   updRot();apply();
  });
  const exitFs=()=>{wrap.classList.remove("fs","rot");document.body.style.overflow="";document.body.classList.remove("fsmode");
-  document.getElementById("fsdrawer").classList.remove("open");
-  try{screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
+   try{screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
   if(document.fullscreenElement){document.exitFullscreen().catch(()=>{})}
   apply();};
  window.addEventListener("resize",()=>{if(wrap.classList.contains("fs")){updRot();apply()}});
@@ -653,45 +631,21 @@ document.querySelectorAll(".pin").forEach(p=>p.addEventListener("click",e=>{
  e.stopPropagation();const d=MD[p.dataset.m];if(d)showM(d);
 }));
 // fullscreen global UI
-const DC={1:"#4ade80",2:"#a3e635",3:"#facc15",4:"#fb923c",5:"#f87171"};
 const fsx=document.createElement("button");fsx.id="fsx";fsx.textContent="✕";document.body.appendChild(fsx);
 fsx.onclick=()=>window._fsExit&&window._fsExit();
-const fstab=document.createElement("button");fstab.id="fstab";fstab.textContent="タスク一覧";document.body.appendChild(fstab);
-const fsdrawer=document.createElement("div");fsdrawer.id="fsdrawer";document.body.appendChild(fsdrawer);
-fstab.onclick=()=>fsdrawer.classList.toggle("open");
-function fillDrawer(mkey){
- const list=TD.filter(t=>t.map===mkey).sort((a,b)=>a.diff-b.diff);
- fsdrawer.innerHTML="<h5>"+mkey+" TASKS</h5>";
- list.forEach((t,i)=>{const b=document.createElement("button");b.className="fi";
-  b.innerHTML=`<span class="fb" style="background:${DC[t.diff]}">${i+1}</span><span>${t.name}<small>${t.place}</small></span>`;
-  b.onclick=()=>{const d=MD[t.id];if(d)showM(d);fsdrawer.classList.remove("open")};
-  fsdrawer.appendChild(b)});
- if(!list.length)fsdrawer.innerHTML+='<p style="font-size:12px;color:#8a8375">このマップのタスクは無し</p>';
-}
 modal.addEventListener("click",e=>{if(e.target===modal)modal.classList.remove("on")});
 document.getElementById("mc").addEventListener("click",()=>modal.classList.remove("on"));
-// progress checkboxes
-document.querySelectorAll(".done").forEach(c=>{
- const k="eft_"+c.dataset.k;
- if(S&&S.getItem(k)==="1"){c.checked=true;c.closest(".row").classList.add("off")}
- c.addEventListener("change",()=>{c.closest(".row").classList.toggle("off",c.checked);if(S){c.checked?S.setItem(k,"1"):S.removeItem(k)}});
-});
 '''
 md_json=json.dumps(modal_data,ensure_ascii=False)
 js = js + '''
 // ---- service worker ----
 if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{})}
-// ---- helpers ----
-const store={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},
- set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}},
- keys:()=>{try{return Object.keys(localStorage).filter(k=>k.startsWith("eft_"))}catch(e){return[]}}};
 function openTab(t){document.querySelector(`.tab[data-t="${t}"]`)?.click()}
 // ---- search ----
 const q=document.getElementById("q"),qd=document.getElementById("qdrop");
 const INDEX=[];
 document.querySelectorAll(".mapsec").forEach(sec=>{
  const tab=sec.id;
- sec.querySelectorAll(".row").forEach(r=>{const n=r.querySelector(".tname");if(n)INDEX.push({t:n.textContent.trim(),tab,el:r,kind:"タスク"})});
  sec.querySelectorAll(".exrow").forEach(r=>INDEX.push({t:r.textContent.trim().slice(0,60),tab,el:r,kind:"脱出/金策"}));
  sec.querySelectorAll(".il").forEach(a=>INDEX.push({t:a.textContent.trim(),tab,el:a.closest("p")||a,kind:"アイテム/鍵"}));
 });
@@ -709,65 +663,22 @@ q.addEventListener("input",()=>{
  qd.style.display="block";
 });
 document.addEventListener("click",e=>{if(!e.target.closest("#qdrop")&&e.target!==q)qd.style.display="none"});
-// ---- raid planner ----
-const planbar=document.getElementById("planbar"),plancount=document.getElementById("plancount"),
- planpanel=document.getElementById("planpanel"),planbody=document.getElementById("planbody");
-const planSet=new Set((store.get("eft_plan")||"").split(",").filter(Boolean));
-function planSave(){store.set("eft_plan",[...planSet].join(","))}
-function planRefresh(){
- document.querySelectorAll(".plan").forEach(b=>b.classList.toggle("on",planSet.has(b.dataset.k)));
- planbar.style.display=planSet.size?"flex":"none";
- plancount.textContent=`プラン: ${planSet.size}件`;
- // filter pins when plan active? keep all visible; highlight planned
- document.querySelectorAll(".pin.taskpin").forEach(p=>{
-  const base=p.dataset.m.split("_sub")[0];
-  p.style.opacity=(planSet.size&&!planSet.has(base))?".28":"1"});
-}
-document.querySelectorAll(".plan").forEach(b=>b.addEventListener("click",()=>{
- const k=b.dataset.k;planSet.has(k)?planSet.delete(k):planSet.add(k);planSave();planRefresh()}));
-function renderPlan(list,title){
- const byMap={};list.forEach(t=>{(byMap[t.map]=byMap[t.map]||[]).push(t)});
- let html=`<h4>${title}</h4>`;const items=new Set();
- for(const m in byMap){html+=`<h4>▸ ${m}</h4>`;
-  byMap[m].sort((a,b)=>a.diff-b.diff).forEach(t=>{
-   html+=`<div class="pt">${"★".repeat(t.diff)} ${t.name}<small>${t.place} / 重要度${t.imp}</small></div>`;
-   if(t.items&&t.items!=="なし")t.items.split(/[・、\\/]|(?:　)/).forEach(x=>{x=x.trim();if(x&&!x.startsWith("なし"))items.add(x)});
-  })}
- html+=`<div class="items"><b>持ち物まとめ:</b><br>${[...items].map(i=>"・"+i).join("<br>")||"特になし"}</div>`;
- planbody.innerHTML=html;planpanel.style.display="block";
-}
-document.getElementById("planopen").onclick=()=>{
- renderPlan(TD.filter(t=>planSet.has(t.id)),"選択中のタスク")};
-document.getElementById("planclose").onclick=()=>planpanel.style.display="none";
-// ---- auto recommendation ----
-document.getElementById("planreco").onclick=()=>{
- const undone=TD.filter(t=>store.get("eft_"+t.id)!=="1");
- const score={};undone.forEach(t=>{score[t.map]=(score[t.map]||0)+(6-t.diff)+(t.imp==="高"?2:t.imp==="中"?1:0)});
- const best=Object.entries(score).sort((a,b)=>b[1]-a[1])[0];
- if(!best){planbody.innerHTML="<h4>未完了タスクなし!全部終わってる🎉</h4>";planpanel.style.display="block";return}
- const picks=undone.filter(t=>t.map===best[0]).sort((a,b)=>a.diff-b.diff).slice(0,6);
- renderPlan(picks,`おすすめ: ${best[0]} レイド(未完了${undone.filter(t=>t.map===best[0]).length}件から易しい順)`);
- openTab(best[0]);
-};
-planRefresh();
 '''
-md_td = json.dumps(taskdata, ensure_ascii=False)
 html=f'''<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#14161a">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="icon-192.png"><title>Tarkov タスク&脱出マップ</title><style>{css}</style></head><body>
-<header><h1>Tarkov Task &amp; Extract Map <small style="color:#8a8375;font-size:11px;letter-spacing:0">{BUILD_VER}</small></h1></header>
-<nav><input id="q" type="search" placeholder="検索: タスク/鍵/脱出/アイテム" autocomplete="off">{''.join(tabs)}</nav>
+<link rel="apple-touch-icon" href="icon-192.png"><title>Tarkov 脱出マップ</title><style>{css}</style></head><body>
+<header><h1>Tarkov Extract Map <small style="color:#8a8375;font-size:11px;letter-spacing:0">{BUILD_VER}</small></h1></header>
+<nav><input id="q" type="search" placeholder="検索: 鍵/脱出/アイテム" autocomplete="off">{''.join(tabs)}</nav>
 <div id="qdrop"></div>
-<div id="planbar"><span id="plancount"></span><button id="planopen">プランを見る</button><button id="planreco">おすすめレイド提案</button></div>
-<div id="planpanel"><div class="pp-head"><b>レイドプラン</b><button id="planclose">×</button></div><div id="planbody"></div></div>
 
 {''.join(sections)}
+<footer style="padding:18px;text-align:center;font-size:10px;color:#8a8375">Map artwork: <a class="il" href="https://github.com/the-hideout/tarkov-dev-svg-maps" target="_blank" rel="noopener">tarkov-dev SVG Maps</a> · <a class="il" href="https://github.com/the-hideout/tarkov-dev-svg-maps/blob/main/LICENSE.md" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a></footer>
 <div id="modal"><div class="mbox"><div class="mhead"><div><b id="mt"></b><small id="ms"></small></div><button class="mclose" id="mc">×</button></div>
 <div class="mbody"><div class="lbl">場所</div><div id="mp"></div><div class="lbl" style="margin-top:8px">やり方</div><div id="mdsc"></div><div id="mitwrap"><div class="lbl" style="margin-top:8px">必要アイテム(下線=wiki)</div><div id="mit"></div></div></div>
 <div class="mfoot"><a id="mwl" href="#" target="_blank" rel="noopener">🖼 wikiで写真を見る</a><a id="mimg" href="#" target="_blank" rel="noopener">📷 画像検索</a></div></div></div>
 <script>const __MDPH__=0;</script>
-<script>{js.replace("__MD__", md_json).replace("__TD__", md_td)}</script>
+<script>{js.replace("__MD__", md_json)}</script>
 </body></html>'''
 with open(os.path.join(ROOT, 'index.html'), 'w', encoding='utf-8') as output_file:
     output_file.write(html)
