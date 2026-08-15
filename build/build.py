@@ -684,14 +684,14 @@ nav{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line);po
 .building-wrap{position:relative;overflow:auto;height:74vh;background:#0a0c0e;overscroll-behavior:contain;cursor:grab}
 .building-canvas{position:relative;width:100%;min-width:100%;transform-origin:0 0}
 .building-canvas img{display:block;width:100%;height:auto;pointer-events:none;user-select:none;-webkit-user-drag:none}
-.building-wrap:fullscreen{height:100vh;background:#090b0d}.building-wrap:fullscreen .building-canvas{margin:auto}
+.building-wrap.fs{position:fixed;inset:0;z-index:45;height:100dvh;background:#090b0d;border:none}.building-wrap.fs .building-canvas{margin:auto}
 .building-credit{padding:4px 8px;font-size:9px;text-align:right;background:#101318}.building-credit a{color:#817a6c;text-decoration:none}
 .map-wrap{position:relative;overflow:hidden;height:74vh;border:1px solid var(--line);border-radius:4px;touch-action:none;overscroll-behavior:contain;cursor:grab;background:#0a0c0e}
 .map-wrap.fs{position:fixed;inset:0;z-index:45;height:100dvh;max-height:none;border:none;border-radius:0}
 .map-wrap.fs.rot{width:100dvh;height:100dvw;inset:auto;top:50%;left:50%;transform:translate(-50%,-50%) rotate(90deg)}
 #fsx{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:49;width:46px;height:46px;border-radius:50%;background:#000d;border:1px solid var(--amber);color:#fff;font-size:20px}
 body.fsmode #fsx{display:block}
-.map-wrap.fs #fsx,.map-wrap:fullscreen #fsx,.building-wrap:fullscreen #fsx{display:block}
+.map-wrap.fs #fsx,.building-wrap.fs #fsx{display:block}
 body.fsmode #modal{align-items:flex-start;justify-content:flex-start;padding:10px}
 body.fsmode .mbox{max-width:330px;max-height:72vh;font-size:12px}
 .map-wrap.fs .fsclose{display:none}
@@ -806,23 +806,12 @@ document.querySelectorAll(".mapsec").forEach(sec=>{
  wrap.addEventListener("layoutchange",()=>requestAnimationFrame(()=>{s=1;tx=0;const H=wrap.clientHeight,mhh=map.offsetHeight;ty=(H-mhh)/2;apply()}));
  sec.querySelector(".zin")?.addEventListener("click",()=>zoomAt(wrap.clientWidth/2,wrap.clientHeight/2,1.35));
  sec.querySelector(".zout")?.addEventListener("click",()=>zoomAt(wrap.clientWidth/2,wrap.clientHeight/2,1/1.35));
- const updRot=()=>{wrap.classList.toggle("rot",
-   wrap.classList.contains("fs")&&!document.fullscreenElement&&window.innerHeight>window.innerWidth)};
- sec.querySelector(".fsb")?.addEventListener("click",async()=>{
+ sec.querySelector(".fsb")?.addEventListener("click",()=>{
   wrap.classList.add("fs");document.body.style.overflow="hidden";document.body.classList.add("fsmode");
   moveFullscreenUiInto(wrap);
-  try{await wrap.requestFullscreen();}catch(e){}
-  try{await screen.orientation.lock("landscape");}catch(e){}
-  updRot();apply();
+  apply();
  });
- const exitFs=()=>{wrap.classList.remove("fs","rot");document.body.style.overflow="";document.body.classList.remove("fsmode");
-   try{screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
-  if(document.fullscreenElement){document.exitFullscreen().catch(()=>{})}
-  restoreModalHome();
-  apply();};
- window.addEventListener("resize",()=>{if(wrap.classList.contains("fs")){updRot();apply()}});
- document.addEventListener("fullscreenchange",()=>{if(wrap.classList.contains("fs")){updRot();
-  if(!document.fullscreenElement&&!document.body.classList.contains("fsmode")){wrap.classList.remove("fs","rot")}}});
+ window.addEventListener("resize",()=>{if(wrap.classList.contains("fs"))apply()});
  const cvt=(cx,cy)=>{const r=wrap.getBoundingClientRect();
   if(wrap.classList.contains("rot")){const scx=(r.left+r.right)/2,scy=(r.top+r.bottom)/2;
    return[wrap.clientWidth/2+(cy-scy),wrap.clientHeight/2-(cx-scx)]}
@@ -868,7 +857,7 @@ document.querySelectorAll(".building-panel").forEach(panel=>{
  const readable=()=>{bs=1;apply();requestAnimationFrame(()=>{bs=Math.max(1,Math.min(5,wrap.clientHeight*.94/(canvas.offsetHeight||1)));apply();wrap.scrollLeft=Math.max(0,(canvas.offsetWidth-wrap.clientWidth)/2);wrap.scrollTop=0})};
  panel.querySelector(".bzin").onclick=()=>zoom(1.25);panel.querySelector(".bzout").onclick=()=>zoom(1/1.25);
  panel.querySelector(".bfit").onclick=()=>{bs=1;apply();wrap.scrollTo(0,0)};
- panel.querySelector(".bfs").onclick=async()=>{moveFullscreenUiInto(wrap);try{await wrap.requestFullscreen()}catch(e){restoreModalHome()}};
+ panel.querySelector(".bfs").onclick=()=>{wrap.classList.add("fs");document.body.style.overflow="hidden";document.body.classList.add("fsmode");moveFullscreenUiInto(wrap)};
  wrap.addEventListener("wheel",e=>{e.preventDefault();zoom(e.deltaY<0?1.18:1/1.18)},{passive:false});
  wrap.addEventListener("buildingfloorchange",readable);wrap.addEventListener("buildingopen",readable);
  let bd=null;
@@ -924,7 +913,7 @@ document.querySelectorAll(".pin").forEach(p=>p.addEventListener("click",e=>{
 }));
 // fullscreen global UI
 const fsx=document.createElement("button");fsx.id="fsx";fsx.textContent="✕";document.body.appendChild(fsx);
-fsx.onclick=()=>{document.querySelectorAll(".map-wrap.fs").forEach(w=>w.classList.remove("fs","rot"));document.body.style.overflow="";document.body.classList.remove("fsmode");if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});restoreModalHome()};
+fsx.onclick=()=>{document.querySelectorAll(".map-wrap.fs,.building-wrap.fs").forEach(w=>w.classList.remove("fs","rot"));document.body.style.overflow="";document.body.classList.remove("fsmode");restoreModalHome()};
 modal.addEventListener("click",e=>{if(e.target===modal)modal.classList.remove("on")});
 document.getElementById("mc").addEventListener("click",()=>modal.classList.remove("on"));
 '''
